@@ -68,7 +68,7 @@ namespace Domain.Entities
 
 
 
-        // -- PROFILE CHILD AGGREGATE --
+        // -- PROFILE AGGREGATE CHILD --
 
         public void CreateProfile(
             FirstNameVo firstname,

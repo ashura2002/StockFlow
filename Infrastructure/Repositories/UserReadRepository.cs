@@ -17,9 +17,19 @@ namespace Infrastructure.Repositories
             _context = inventoryDbContext;
         }
 
-        public Task<IReadOnlyCollection<UserDto>> GetAllUsersAsync(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<UserDto>> GetAllUsersAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await _context.Users
+                .AsNoTracking()
+                .OrderByDescending(u => u.CreatedAt)
+                .Select(u => 
+                new UserDto(u.Id, 
+                u.Email.Value, 
+                u.Role, 
+                u.CreatedAt))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<bool> IsEmailExistAsync(string email, CancellationToken cancellationToken)

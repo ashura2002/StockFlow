@@ -23,7 +23,8 @@ namespace Application.Features.Users.Queries
             return new UserDto(
                 user.Id, 
                 user.Email.Value, 
-                user.Role);
+                user.Role,
+                user.CreatedAt);
         }
     }
 }

@@ -48,7 +48,20 @@ namespace WebAPI.Controllers
             return new UserDto(
                 result.UserId, 
                 result.Email, 
-                result.Role);
+                result.Role,
+                result.CreatedAt);
+        }
+
+        [Authorize(Roles = RolesConstant.Admin)]
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyCollection<UserDto>>> GetAllUsers(
+            [FromQuery] PaginatedRequest request,
+            CancellationToken cancellationToken)
+        {
+            var queries = new GetAllUsersQuery(request.Page, request.PageSize);
+            var result = await _mediatR.Send(queries, cancellationToken);
+
+            return Ok(result);
         }
     }
 }
