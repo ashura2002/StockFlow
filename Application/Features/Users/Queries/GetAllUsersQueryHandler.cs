@@ -1,0 +1,22 @@
+﻿using Application.Dtos;
+using Application.Interfaces;
+using MediatR;
+
+namespace Application.Features.Users.Queries
+{
+    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IReadOnlyCollection<UserDto>>
+    {
+        private readonly IUserReadRepository _userReadRepository;
+
+        public GetAllUsersQueryHandler(IUserReadRepository userReadRepository)
+        {
+            _userReadRepository = userReadRepository;
+        }
+
+        public async Task<IReadOnlyCollection<UserDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+        {
+            var users = await _userReadRepository.GetAllUsersAsync(request.Page, request.PageSize, cancellationToken);
+            return users;
+        }
+    }
+}

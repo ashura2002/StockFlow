@@ -31,6 +31,8 @@ namespace Infrastructure
             // services
             services.Configure<SeededUserSettings>(configuration.GetSection(SeededUserSettings.SectionName));
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddTransient<IPasswordService, PasswordService>();
             services.AddTransient<IJwtService, JwtService>();
             return services;

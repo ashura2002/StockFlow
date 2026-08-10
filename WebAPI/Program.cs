@@ -20,6 +20,7 @@ builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddJwtAuthenticationDI(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddSwaggerDocumentation();
 
