@@ -23,15 +23,5 @@ namespace Domain.Entities
         {
             return new Order(userId);
         }
-
-        public void AddOrderItem(OrderItem orderItem)
-        {
-            _orderItems.Add(orderItem);
-        }
-
-        public void RemoveOrderItem(OrderItem orderItem)
-        {
-            _orderItems.Remove(orderItem);
-        }
     }
 }
