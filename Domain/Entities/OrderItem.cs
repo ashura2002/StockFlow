@@ -28,7 +28,7 @@ namespace Domain.Entities
             UnitPrice = unitPrice;
         }
 
-        public static OrderItem Create(
+        internal static OrderItem Create(
             Guid orderId,
             Guid productId,
             int quantity,

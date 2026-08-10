@@ -1,9 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Infrastructure.Data.Configurations
 {
@@ -22,6 +19,8 @@ namespace Infrastructure.Data.Configurations
                .WithOne(oi => oi.Order)
                .HasForeignKey(oi => oi.OrderId)
                .IsRequired();
+
+            builder.HasQueryFilter(o => o.User.DeletedAt == null);
         }
     }
 }
