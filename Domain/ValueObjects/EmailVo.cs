@@ -1,0 +1,36 @@
+﻿using Domain.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace Domain.ValueObjects
+{
+    public class EmailVo
+    {
+        public string Value { get;}
+
+        private EmailVo(string value)
+        {
+            Value = value;
+        }
+
+        public static EmailVo Create(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) 
+                throw new DomainBadRequestException("Email cannot be empty.");
+
+            value = value.Trim();
+            if (!IsValidEmail(value))   
+                throw new DomainBadRequestException("Email invalid format.");
+
+            return new EmailVo(value);
+        }
+
+        private static bool IsValidEmail(string email)
+        {
+            var pattern = @"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
+            return Regex.IsMatch(email, pattern);
+        }
+    }
+}
