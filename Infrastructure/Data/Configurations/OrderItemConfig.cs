@@ -29,6 +29,8 @@ namespace Infrastructure.Data.Configurations
                 .WithMany()
                 .HasForeignKey(oi => oi.ProductId)
                 .IsRequired();
+
+            builder.HasQueryFilter(oi => oi.Order.User.DeletedAt == null);
         }
     }
 }

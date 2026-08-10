@@ -33,29 +33,50 @@ namespace Domain.Entities
 
         public void UpdateEmail(EmailVo newEmail)
         {
+            EnsureNotDeleted();
+
             if (Email == newEmail) return;
+
             Email = newEmail;
             Touch();
         }
 
         public void UpdatePassword(PasswordVo newPassword)
         {
+            EnsureNotDeleted();
+
             if (Password == newPassword) return;
+
             Password = newPassword;
             Touch();
         }
 
+        public void SoftDelete()
+        {
+            if (DeletedAt.HasValue) return;
+
+            DeletedAt = DateTime.UtcNow;
+            Touch();
+        }
+
+        private void EnsureNotDeleted()
+        {
+            if (DeletedAt.HasValue)
+                throw new DomainBadRequestException("Cannot create profile for soft deleted user.");
+        }
 
 
-        // updating profile
+
+
+        // -- PROFILE CHILD AGGREGATE --
+
         public void CreateProfile(
             FirstNameVo firstname,
             LastNameVo lastname,
             DateOnly dateOfBirth,
             AddressVo address)
         {
-            if (DeletedAt.HasValue)
-                throw new DomainBadRequestException("Cannot create profile for soft deleted user.");
+            EnsureNotDeleted();
 
             if (Profile != null)
                 throw new DomainBadRequestException("You already had a profile.");
