@@ -1,11 +1,13 @@
 ﻿using Application.Interfaces;
 using Infrastructure.Data;
-using Infrastructure.Repositories;
+using Infrastructure.Persistence;
+using Infrastructure.Persistence.Repositories;
 using Infrastructure.Services;
 using Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Resend;
 
 namespace Infrastructure
 {
@@ -21,6 +23,7 @@ namespace Infrastructure
             // repositories
             services.AddScoped<IUserReadRepository, UserReadRepository>();
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
+            services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
 
             // unit of work
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -31,10 +34,24 @@ namespace Infrastructure
             // services
             services.Configure<SeededUserSettings>(configuration.GetSection(SeededUserSettings.SectionName));
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+            services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
+
+            // Resend external service
+            services.Configure<ResendClientOptions>(options =>
+            {
+                options.ApiToken = configuration["Email:ApiKey"]
+                    ?? throw new InvalidOperationException(
+                        "Resend API key is not configured.");
+            });
+            services.AddHttpClient<IResend, ResendClient>();
+
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddTransient<IPasswordService, PasswordService>();
             services.AddTransient<IJwtService, JwtService>();
+            services.AddTransient<IPasswordTokenGeneratorService, PasswordTokenGeneratorService>();
+            services.AddTransient<IEmailSenderService, EmailSenderService>();
+            services.AddTransient<IPasswordResetTokenHasherService, PasswordResetTokenHasherService>();
             return services;
         }
     }

@@ -1,4 +1,4 @@
 ﻿namespace WebAPI.RequestDtos
 {
-    public record LoginResponse(string Message, string AccessToken);
+    public sealed record LoginResponse(string Message, string AccessToken);
 }

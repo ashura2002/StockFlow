@@ -31,16 +31,6 @@ namespace Domain.Entities
         }
 
 
-        public void UpdateEmail(EmailVo newEmail)
-        {
-            EnsureNotDeleted();
-
-            if (Email == newEmail) return;
-
-            Email = newEmail;
-            Touch();
-        }
-
         public void UpdatePassword(PasswordVo newPassword)
         {
             EnsureNotDeleted();
@@ -54,6 +44,8 @@ namespace Domain.Entities
         public void SoftDelete()
         {
             if (DeletedAt.HasValue) return;
+            if (Role == Role.Admin)
+                throw new DomainRuleException("Admin accounts are not allowed to delete their own account.");
 
             DeletedAt = DateTime.UtcNow;
             Touch();
@@ -62,7 +54,7 @@ namespace Domain.Entities
         private void EnsureNotDeleted()
         {
             if (DeletedAt.HasValue)
-                throw new DomainBadRequestException("Cannot create profile for soft deleted user.");
+                throw new DomainRuleException("Cannot create profile for soft deleted user.");
         }
 
 
@@ -79,7 +71,7 @@ namespace Domain.Entities
             EnsureNotDeleted();
 
             if (Profile != null)
-                throw new DomainBadRequestException("You already had a profile.");
+                throw new DomainRuleException("You already had a profile.");
 
             Profile = Profile.Create(firstname, lastname, dateOfBirth, address);
             Touch();

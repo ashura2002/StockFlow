@@ -15,7 +15,9 @@ namespace Application.Features.Users.Queries
 
         public async Task<IReadOnlyCollection<UserDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            var users = await _userReadRepository.GetAllUsersAsync(request.Page, request.PageSize, cancellationToken);
+            var users = await _userReadRepository.GetAllActiveUsersAsync(
+                request.Page, 
+                request.PageSize, cancellationToken);
             return users;
         }
     }

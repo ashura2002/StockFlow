@@ -1,7 +1,5 @@
 ﻿using Domain.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace Domain.Entities
 {
@@ -35,10 +33,10 @@ namespace Domain.Entities
             decimal unitPrice)
         {
             if (quantity <= 0)
-                throw new DomainBadRequestException("Quantity must above 0.");
+                throw new DomainRuleException("Quantity must above 0.");
 
             if (unitPrice <= 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleException(
                     "Unit price must be greater than 0.");
 
             return new OrderItem(
@@ -51,7 +49,7 @@ namespace Domain.Entities
         public void UpdateQuantity(int quantity)
         {
             if (quantity <= 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleException(
                     "Quantity must be greater than 0.");
 
             if (Quantity == quantity)

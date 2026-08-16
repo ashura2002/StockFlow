@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Data
 {
-    public class DatabaseSeeder
+    public sealed class DatabaseSeeder
     {
         private readonly InventoryDbContext _context;
         private readonly IPasswordService _passwordhasher;
