@@ -2,13 +2,13 @@
 
 namespace WebAPI.RequestDtos
 {
-    public class CustomerRegistrationRequest
+    public sealed record CustomerRegistrationRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Email is required")]
         [EmailAddress]
         public required string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password is required")]
         [StringLength(100, MinimumLength = 5)]
         public required string Password { get; set; }
     }

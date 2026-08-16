@@ -3,15 +3,13 @@ using Domain.Entities;
 using Domain.ValueObjects;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Infrastructure.Repositories
+
+namespace Infrastructure.Persistence.Repositories
 {
-    public class UserWriteRepository : IUserWriteRepository
+    public sealed class UserWriteRepository : IUserWriteRepository
     {
-        public InventoryDbContext _context;
+        private readonly InventoryDbContext _context;
 
         public UserWriteRepository(InventoryDbContext inventoryDbContext)
         {
@@ -26,7 +24,7 @@ namespace Infrastructure.Repositories
         public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
         {
             return await _context.Users
-                 .FirstOrDefaultAsync(u => u.Email == EmailVo.Create(email),
+                 .FirstOrDefaultAsync(u => u.Email== EmailVo.Create(email),
                  cancellationToken);
         }
 

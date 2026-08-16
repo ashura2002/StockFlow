@@ -1,10 +1,6 @@
-﻿
-using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public record LoginCommand(string Email, string Password) : IRequest<string>;
+    public sealed record LoginCommand(string Email, string Password) : IRequest<string>;
 }

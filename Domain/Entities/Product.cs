@@ -42,11 +42,11 @@ namespace Domain.Entities
           Guid supplierId)
         {
             if (price <= 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleException(
                     "Price must be greater than 0.");
 
             if (stock < 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleException(
                     "Stock cannot be negative.");
 
             return new Product(productName, price, stock, categoryId, supplierId);
@@ -65,7 +65,7 @@ namespace Domain.Entities
             if (Price == newPrice) return;
 
             if (newPrice <= 0)
-                throw new DomainBadRequestException("Price must be greater than 0.");
+                throw new DomainRuleException("Price must be greater than 0.");
 
             Price = newPrice;
             Touch();

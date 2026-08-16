@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace Infrastructure.Settings
 {
-    public class JwtSettings
+    public sealed class JwtSettings
     {
         public const string SectionName = "Jwt";
         public required string Key { get; set; }

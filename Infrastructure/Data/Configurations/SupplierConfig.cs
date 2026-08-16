@@ -2,13 +2,11 @@
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace Infrastructure.Data.Configurations
 {
-    public class SupplierConfig : IEntityTypeConfiguration<Supplier>
+    public sealed class SupplierConfig : IEntityTypeConfiguration<Supplier>
     {
         public void Configure(EntityTypeBuilder<Supplier> builder)
         {

@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public class LoginCommandHandler : IRequestHandler<LoginCommand, string>
+    public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, string>
     {
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly IPasswordService _passwordService;

@@ -17,12 +17,12 @@ namespace Domain.ValueObjects
         public static LastNameVo Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new DomainBadRequestException("Lastname cannot be empty.");
+                throw new DomainRuleException("Lastname cannot be empty.");
             value = value.Trim();
             value = char.ToUpper(value[0]) + value.Substring(1).ToLower();
 
             if (value.Length <= 3)
-                throw new DomainBadRequestException("Invalid value, Lastname must above 3 characters length.");
+                throw new DomainRuleException("Invalid value, Lastname must above 3 characters length.");
 
             return new LastNameVo(value);
         }

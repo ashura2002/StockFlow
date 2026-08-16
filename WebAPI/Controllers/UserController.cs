@@ -9,7 +9,7 @@ using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]s")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -46,14 +46,14 @@ namespace WebAPI.Controllers
             var result = await _mediatR.Send(query, cancellationToken);
 
             return new UserDto(
-                result.UserId, 
-                result.Email, 
+                result.UserId,
+                result.Email,
                 result.Role,
                 result.CreatedAt);
         }
 
         [Authorize(Roles = RolesConstant.Admin)]
-        [HttpGet]
+        [HttpGet("active")]
         public async Task<ActionResult<IReadOnlyCollection<UserDto>>> GetAllUsers(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
@@ -63,5 +63,37 @@ namespace WebAPI.Controllers
 
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPatch("password")]
+        public async Task<ActionResult> UpdatePassword(
+            [FromBody] UpdatePasswordRequest request,
+            CancellationToken cancellationToken)
+        {
+            var command = new UpdatePasswordCommand(request.Password);
+            await _mediatR.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        [Authorize(Roles = RolesConstant.Admin)]
+        [HttpGet("in-active")]
+        public async Task<ActionResult<IReadOnlyCollection<UserDto>>> GetAllInActiveUsers(CancellationToken cancellationToken)
+        {
+            var queries = new GetAllInActiveUsersQuery();
+            var result = await _mediatR.Send(queries, cancellationToken);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = RolesConstant.Customer)]
+        [HttpDelete("me")]
+        public async Task<ActionResult> DeleteOwnAccount(CancellationToken cancellationToken)
+        {
+            var command = new DeleteOwnAccountCommand();
+            await _mediatR.Send(command, cancellationToken);
+            return NoContent();
+        }
+
     }
 }
+
+// add product image

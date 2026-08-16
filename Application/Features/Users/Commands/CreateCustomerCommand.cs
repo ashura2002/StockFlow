@@ -1,9 +1,8 @@
-﻿using Domain.Enums;
-using MediatR;
+﻿using MediatR;
 
 namespace Application.Features.Users.Commands
 {
-    public record CreateCustomerCommand(
+    public sealed record CreateCustomerCommand(
         string Email,  
         string Password):IRequest<Guid>;
 }

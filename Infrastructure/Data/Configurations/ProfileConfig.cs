@@ -2,13 +2,11 @@
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace Infrastructure.Data.Configurations
 {
-    public class ProfileConfig : IEntityTypeConfiguration<Profile>
+    public sealed class ProfileConfig : IEntityTypeConfiguration<Profile>
     {
         public void Configure(EntityTypeBuilder<Profile> builder)
         {

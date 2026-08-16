@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configurations
 {
-    public class OrderConfig : IEntityTypeConfiguration<Order>
+    public sealed class OrderConfig : IEntityTypeConfiguration<Order>
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
@@ -13,14 +13,14 @@ namespace Infrastructure.Data.Configurations
             builder.HasOne(o => o.User)
                   .WithMany()
                   .HasForeignKey(o => o.UserId)
-                  .IsRequired();
+                  .OnDelete(DeleteBehavior.Restrict) // prevent from deleting user is theres an order
+                  .IsRequired(false);
 
             builder.HasMany(o => o.OrderItems)
                .WithOne(oi => oi.Order)
                .HasForeignKey(oi => oi.OrderId)
+               .OnDelete(DeleteBehavior.Cascade)
                .IsRequired();
-
-            builder.HasQueryFilter(o => o.User.DeletedAt == null);
         }
     }
 }

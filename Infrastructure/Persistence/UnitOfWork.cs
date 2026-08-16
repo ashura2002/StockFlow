@@ -1,14 +1,12 @@
 ﻿using Application.Interfaces;
 using Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Infrastructure.Repositories
+
+namespace Infrastructure.Persistence
 {
-    public class UnitOfWork:IUnitOfWork
+    public sealed class UnitOfWork:IUnitOfWork
     {
-        public InventoryDbContext _context;
+        private readonly InventoryDbContext _context;
 
         public UnitOfWork(InventoryDbContext inventoryDbContext)
         {

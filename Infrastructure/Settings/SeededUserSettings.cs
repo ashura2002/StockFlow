@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace Infrastructure.Settings
 {
-    public class SeededUserSettings
+    public sealed class SeededUserSettings
     {
         public const string SectionName = "SeededUser";
         public required string Email { get; set; }
