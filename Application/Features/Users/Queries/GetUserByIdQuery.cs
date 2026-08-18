@@ -6,5 +6,5 @@ using System.Text;
 
 namespace Application.Features.Users.Queries
 {
-    public record GetUserByIdQuery(Guid UserId) : IRequest<UserDto>;
+    public record GetUserByIdQuery(Guid UserId) : IRequest<UserResponseDto>;
 }

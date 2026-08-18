@@ -1,10 +1,11 @@
 ﻿using Domain.Enums;
+using Domain.Events;
 using Domain.Exceptions;
 using Domain.ValueObjects;
 
 namespace Domain.Entities
 {
-    public class User : BaseEntity
+    public class User : AggregateRoot
     {
         public EmailVo Email { get; private set; }
         public Role Role { get; private set; }
@@ -27,7 +28,9 @@ namespace Domain.Entities
             Role role, 
             PasswordVo password)
         {
-            return new User(email, role, password);
+            var user = new User(email, role, password);
+            user.RaiseEvent(new RegisteredUserDomainEvent(user.Id, user.Email.Value));
+            return user;
         }
 
 

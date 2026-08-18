@@ -1,5 +1,6 @@
 ﻿using Application.Dtos;
 using Application.Interfaces;
+using Domain.Enums;
 using Domain.ValueObjects;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +18,26 @@ namespace Infrastructure.Persistence.Repositories
             _context = inventoryDbContext;
         }
 
-        public async Task<IReadOnlyCollection<UserDto>> GetAllActiveUsersAsync(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<UserResponseDto?> GetAdminAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Users
+                .Where(u => u.Role == Role.Admin)
+                .Select(u => 
+                    new UserResponseDto(
+                    u.Id,
+                    u.Email.Value, 
+                    u.Role, 
+                    u.CreatedAt))
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        public async Task<IReadOnlyCollection<UserResponseDto>> GetAllActiveUsersAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
             return await _context.Users
                 .AsNoTracking()
                 .OrderByDescending(u => u.CreatedAt)
                 .Select(u => 
-                new UserDto(
+                new UserResponseDto(
                     u.Id, 
                     u.Email.Value, 
                     u.Role, 
@@ -33,12 +47,13 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<UserDto>> GetAllInActiveUsersAsync(CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<UserResponseDto>> GetAllInActiveUsersAsync(CancellationToken cancellationToken)
         {
             return await _context.Users
                 .AsNoTracking()
+                .Where(u => u.DeletedAt.HasValue)
                 .OrderByDescending(u => u.CreatedAt)
-                .Select(u => new UserDto(
+                .Select(u => new UserResponseDto(
                     u.Id, 
                     u.Email.Value, 
                     u.Role, 

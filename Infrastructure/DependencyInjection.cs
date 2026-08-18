@@ -1,5 +1,7 @@
 ﻿using Application.Interfaces;
+using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
+using Infrastructure.Events;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Services;
@@ -45,8 +47,14 @@ namespace Infrastructure
             });
             services.AddHttpClient<IResend, ResendClient>();
 
+            // Background service
+            services.AddHostedService<PasswordResetTokenCleanupService>();
+
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
+            services.AddScoped<INotificationReadRepository, NotificationReadRepository>();
+            services.AddScoped<IDomainEventDispatcher, DomainEventDispather>();
             services.AddTransient<IPasswordService, PasswordService>();
             services.AddTransient<IJwtService, JwtService>();
             services.AddTransient<IPasswordTokenGeneratorService, PasswordTokenGeneratorService>();

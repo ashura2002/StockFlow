@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Features.Users.Queries
 {
-    public record GetAllInActiveUsersQuery() : IRequest<IReadOnlyCollection<UserDto>>;
+    public record GetAllInActiveUsersQuery() : IRequest<IReadOnlyCollection<UserResponseDto>>;
 }

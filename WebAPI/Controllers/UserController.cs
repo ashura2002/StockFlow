@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = RolesConstant.Admin)]
         [HttpGet("{userId:guid}")]
-        public async Task<ActionResult<UserDto>> GetUserById(
+        public async Task<ActionResult<UserResponseDto>> GetUserById(
             Guid userId,
             CancellationToken cancellationToken)
         {
@@ -45,7 +45,7 @@ namespace WebAPI.Controllers
 
             var result = await _mediatR.Send(query, cancellationToken);
 
-            return new UserDto(
+            return new UserResponseDto(
                 result.UserId,
                 result.Email,
                 result.Role,
@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = RolesConstant.Admin)]
         [HttpGet("active")]
-        public async Task<ActionResult<IReadOnlyCollection<UserDto>>> GetAllUsers(
+        public async Task<ActionResult<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
         {
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = RolesConstant.Admin)]
         [HttpGet("in-active")]
-        public async Task<ActionResult<IReadOnlyCollection<UserDto>>> GetAllInActiveUsers(CancellationToken cancellationToken)
+        public async Task<ActionResult<IReadOnlyCollection<UserResponseDto>>> GetAllInActiveUsers(CancellationToken cancellationToken)
         {
             var queries = new GetAllInActiveUsersQuery();
             var result = await _mediatR.Send(queries, cancellationToken);

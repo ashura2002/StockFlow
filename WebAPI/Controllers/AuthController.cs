@@ -54,4 +54,3 @@ namespace WebAPI.Controllers
         
     }
 }
-// background service for deleting hashtoken expired and used

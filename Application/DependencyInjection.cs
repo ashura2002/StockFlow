@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Application.Events;
+using Application.Interfaces;
+using Domain.Events;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace Application
 {
@@ -16,6 +17,10 @@ namespace Application
             // Scan the assembly and automatically register all IRequestHandler implementations
             config.RegisterServicesFromAssembly(assembly)
             );
+
+
+            // events
+            services.AddScoped<IDomainEventHandler<RegisteredUserDomainEvent>, RegisterUserDomainEventHandler>();
 
             return services;
         }

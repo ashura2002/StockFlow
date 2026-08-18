@@ -6,5 +6,6 @@ namespace Application.Interfaces
     {
         void Add(PasswordResetToken passwordResetToken);
         Task<PasswordResetToken?> GetByTokenHashAsync(string hashToken, CancellationToken cancellationToken);
+        Task DeleteExpiredAndUsedTokenAsync(CancellationToken cancellationToken);
     }
 }

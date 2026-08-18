@@ -17,10 +17,10 @@ namespace Infrastructure.Data.Configurations
                   .IsRequired(false);
 
             builder.HasMany(o => o.OrderItems)
-               .WithOne(oi => oi.Order)
-               .HasForeignKey(oi => oi.OrderId)
-               .OnDelete(DeleteBehavior.Cascade)
-               .IsRequired();
+                   .WithOne(oi => oi.Order)
+                   .HasForeignKey(oi => oi.OrderId)
+                   .OnDelete(DeleteBehavior.Cascade)
+                   .IsRequired();
         }
     }
 }
