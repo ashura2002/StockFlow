@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Features.Users.Queries
 {
-    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IReadOnlyCollection<UserDto>>
+    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IReadOnlyCollection<UserResponseDto>>
     {
         private readonly IUserReadRepository _userReadRepository;
 
@@ -13,7 +13,7 @@ namespace Application.Features.Users.Queries
             _userReadRepository = userReadRepository;
         }
 
-        public async Task<IReadOnlyCollection<UserDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<UserResponseDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
             var users = await _userReadRepository.GetAllActiveUsersAsync(
                 request.Page, 

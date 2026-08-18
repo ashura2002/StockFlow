@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Features.Users.Queries
 {
-    public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto>
+    public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserResponseDto>
     {
         private readonly IUserWriteRepository _userWriteRepository;
 
@@ -15,12 +15,12 @@ namespace Application.Features.Users.Queries
             _userWriteRepository = userWriteRepository;
         }
 
-        public async Task<UserDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+        public async Task<UserResponseDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
             var user = await _userWriteRepository.GetUserByIdAsync(request.UserId, cancellationToken) ??
                 throw new DomainNotFoundException("User not found.");
 
-            return new UserDto(
+            return new UserResponseDto(
                 user.Id, 
                 user.Email.Value, 
                 user.Role,

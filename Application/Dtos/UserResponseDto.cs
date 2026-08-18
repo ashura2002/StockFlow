@@ -2,7 +2,7 @@
 
 namespace Application.Dtos
 {
-    public record UserDto(
+    public record UserResponseDto(
         Guid UserId,
         string Email,
         Role Role,

@@ -32,10 +32,8 @@ namespace Application.Features.Auth.Commands
             // hash with SHA-256
             var tokenHash = _passwordResetTokenHasherService.Hash(request.RawToken);
 
-            var resetToken = await _passwordResetTokenRepository.GetByTokenHashAsync(tokenHash, cancellationToken);
-
             // Return without revealing whether the reset token exists.
-            if (resetToken is null)
+            var resetToken = await _passwordResetTokenRepository.GetByTokenHashAsync(tokenHash, cancellationToken) ?? 
                 throw new DomainRuleException("Invalid or expired password reset token.");
 
             if (resetToken.IsUsed || resetToken.IsExpired)
