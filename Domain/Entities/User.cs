@@ -24,8 +24,8 @@ namespace Domain.Entities
         }
 
         public static User Create(
-            EmailVo email, 
-            Role role, 
+            EmailVo email,
+            Role role,
             PasswordVo password)
         {
             var user = new User(email, role, password);
@@ -79,5 +79,59 @@ namespace Domain.Entities
             Profile = Profile.Create(firstname, lastname, dateOfBirth, address);
             Touch();
         }
+
+
+        public void UpdateProfile(
+            FirstNameVo firstName,
+            LastNameVo lastName,
+            AddressVo address)
+        {
+            EnsureNotDeleted();
+
+            if (Profile == null)
+                throw new DomainRuleException("Create your profile first");
+
+            Profile.UpdateFirstName(firstName);
+            Profile.UpdateLastName(lastName);
+            Profile.UpdateAddress(address);
+
+            Touch();
+        }
+
+        public void UpdateProfilePicture(string profilePictureUrl, string profilePicturePublicId)
+        {
+            if (DeletedAt != null)
+                throw new DomainRuleException(
+                    "Cannot update profile of a deactivated account.");
+
+            if (Profile is null)
+                throw new DomainRuleException("Profile does not exist.");
+
+            Profile.UpdateProfilePicture(profilePictureUrl, profilePicturePublicId);
+            Touch();
+        }
+
+        public Profile DeleteProfile()
+        {
+            if (DeletedAt != null)
+                throw new DomainRuleException(
+                    "Cannot delete profile of a deactivated account.");
+
+            if (Profile is null)
+                throw new DomainRuleException("Profile does not exist.");
+
+            // Save the profile before removing it.
+            // The Application layer will use it to delete the profile from the database.
+            var profile = Profile;
+
+            // Remove the Profile from the aggregate to keep the domain model consistent.
+            // This only changes the in-memory object, the database is not affected
+            // until the Application layer calls SaveChanges().
+            Profile = null;
+
+            Touch();
+            return profile;
+        }
+
     }
 }

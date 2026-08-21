@@ -15,7 +15,7 @@ namespace Infrastructure.Persistence.Repositories
             _context = inventoryDbContext;
         }
 
-        public async Task<IReadOnlyCollection<NotificationResponseDto>> GetAllNotifications(Guid userId, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<NotificationResponseDto>> GetAllNotificationsAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.Notifications
                 .AsNoTracking()

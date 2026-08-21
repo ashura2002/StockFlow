@@ -32,6 +32,19 @@ namespace Infrastructure.Data.Configurations
                   .WithMany(s => s.Products)
                   .HasForeignKey(p => p.SupplierId)
                   .IsRequired();
+
+            builder.Property(p => p.ProductDescriptions)
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            builder.Property(p => p.ProductImageUrl)
+                .IsRequired(false);
+
+            builder.Property(p => p.ProductImagePublicId)
+                .IsRequired(false);
+
+            builder.HasIndex(p => p.ProductName)
+                .IsUnique();
         }
     }
 }

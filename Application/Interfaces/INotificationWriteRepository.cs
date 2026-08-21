@@ -7,6 +7,6 @@ namespace Application.Interfaces
     {
         void Add(Notification notification);
         void Remove(Notification notification);
-        Task<Notification?> GetNotificationById(Guid notificationId, Guid userId, CancellationToken cancellationToken);
+        Task<Notification?> GetNotificationByIdAsync(Guid notificationId, Guid userId, CancellationToken cancellationToken);
     }
 }

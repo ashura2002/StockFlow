@@ -76,15 +76,15 @@ namespace WebAPI.Controllers
         }
 
         [Authorize(Roles = RolesConstant.Admin)]
-        [HttpGet("in-active")]
+        [HttpGet("deleted")]
         public async Task<ActionResult<IReadOnlyCollection<UserResponseDto>>> GetAllInActiveUsers(CancellationToken cancellationToken)
         {
-            var queries = new GetAllInActiveUsersQuery();
+            var queries = new GetAllDeletedUsersQuery();
             var result = await _mediatR.Send(queries, cancellationToken);
             return Ok(result);
         }
 
-        [Authorize(Roles = RolesConstant.Customer)]
+        [Authorize]
         [HttpDelete("me")]
         public async Task<ActionResult> DeleteOwnAccount(CancellationToken cancellationToken)
         {
@@ -96,4 +96,3 @@ namespace WebAPI.Controllers
     }
 }
 
-// add product image

@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         }
 
         
-        [HttpPatch("{notificationId:guid}")]
+        [HttpPatch("{notificationId:guid}/read")]
         public async Task<ActionResult> MarkAsRead(Guid notificationId, CancellationToken cancellationToken)
         {
             var command = new MarkAsReadCommand(notificationId);

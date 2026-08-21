@@ -31,6 +31,8 @@ namespace Infrastructure.Data.Configurations
                .HasMaxLength(255)
                .IsRequired();
 
+            builder.HasIndex(s => s.Email)
+                .IsUnique();
         }
     }
 }

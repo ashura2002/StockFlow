@@ -19,7 +19,7 @@ namespace Infrastructure.Persistence.Repositories
             _context.Add(notification);
         }
 
-        public async Task<Notification?> GetNotificationById(Guid notificationId, Guid userId, CancellationToken cancellationToken)
+        public async Task<Notification?> GetNotificationByIdAsync(Guid notificationId, Guid userId, CancellationToken cancellationToken)
         {
             return await _context.Notifications
                 .FirstOrDefaultAsync(n => n.Id == notificationId && 

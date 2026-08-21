@@ -15,7 +15,10 @@ namespace Domain.Entities
 
         public Guid SupplierId { get; private set; }
         public Supplier Supplier { get; private set; } = null!;
-
+          
+        public string? ProductDescriptions { get; private set; }
+        public string? ProductImageUrl { get; private set; }
+        public string? ProductImagePublicId { get; private set; }
 
 
         private Product(
@@ -23,13 +26,19 @@ namespace Domain.Entities
             decimal price,
             int stock,
             Guid categoryId,
-            Guid supplierId)
+            Guid supplierId,
+            string?productDescriptions = null,
+            string?productImageUrl = null,
+            string? productImagePublicId = null)
         {
             ProductName = productName;
             Price = price;
             Stock = stock;
             CategoryId = categoryId;
             SupplierId = supplierId;
+            ProductDescriptions = productDescriptions;
+            ProductImageUrl = productImageUrl;
+            ProductImagePublicId = productImagePublicId;
         }
 
         public static Product Create(
@@ -37,7 +46,10 @@ namespace Domain.Entities
           decimal price,
           int stock,
           Guid categoryId,
-          Guid supplierId)
+          Guid supplierId,
+          string? productDescriptions = null,
+          string? productImageUrl = null,
+          string? productImagePublicId = null)
         {
             if (price <= 0)
                 throw new DomainRuleException(
@@ -47,7 +59,15 @@ namespace Domain.Entities
                 throw new DomainRuleException(
                     "Stock cannot be negative.");
 
-            return new Product(productName, price, stock, categoryId, supplierId);
+            return new Product(
+                productName, 
+                price, 
+                stock, 
+                categoryId, 
+                supplierId, 
+                productDescriptions, 
+                productImageUrl, 
+                productImagePublicId);
         }
 
 
@@ -66,6 +86,14 @@ namespace Domain.Entities
                 throw new DomainRuleException("Price must be greater than 0.");
 
             Price = newPrice;
+            Touch();
+        }
+
+        public void UpdateProductImage(string? productImage)
+        {
+            if (ProductImageUrl == productImage) return;
+
+            ProductImageUrl = productImage;
             Touch();
         }
     }

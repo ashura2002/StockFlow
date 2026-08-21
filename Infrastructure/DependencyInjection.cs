@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using CloudinaryDotNet;
 using Infrastructure.BackgroundServices;
 using Infrastructure.Data;
 using Infrastructure.Events;
@@ -9,6 +10,7 @@ using Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Resend;
 
 namespace Infrastructure
@@ -26,6 +28,15 @@ namespace Infrastructure
             services.AddScoped<IUserReadRepository, UserReadRepository>();
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
             services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+            services.AddScoped<IProfileWriteRepository, ProfileWriteRepository>();
+            services.AddScoped<IProfileReadRepository, ProfileReadRepository>();
+            services.AddScoped<ISupplierWriteRepository, SupplierWriteRepository>();
+            services.AddScoped<ISupplierReadRepository, SupplierReadRepository>();
+            services.AddScoped<ICategoryWriteRepository, CategoryWriteRepository>();
+            services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
+            services.AddScoped<IProductReadRepository, ProductReadRepository>();
+            services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
+            
 
             // unit of work
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -33,23 +44,42 @@ namespace Infrastructure
             // seeded
             services.AddScoped<DatabaseSeeder>();
 
-            // services
+            // configs
             services.Configure<SeededUserSettings>(configuration.GetSection(SeededUserSettings.SectionName));
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
             services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
+            services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
 
-            // Resend external service
+            // external services
+            // Resend
             services.Configure<ResendClientOptions>(options =>
             {
                 options.ApiToken = configuration["Email:ApiKey"]
                     ?? throw new InvalidOperationException(
                         "Resend API key is not configured.");
             });
+
+            // Cloudinary
+            services.AddSingleton(sp =>
+            {
+                var settings = sp.GetRequiredService<IOptions<CloudinarySettings>>().Value;
+
+                var account = new Account(
+                    settings.CloudName,
+                    settings.ApiKey,
+                    settings.ApiSecret);
+
+                return new Cloudinary(account);
+            });
+
+
             services.AddHttpClient<IResend, ResendClient>();
 
-            // Background service
+            // Background services
             services.AddHostedService<PasswordResetTokenCleanupService>();
 
+
+            // services
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
@@ -60,6 +90,7 @@ namespace Infrastructure
             services.AddTransient<IPasswordTokenGeneratorService, PasswordTokenGeneratorService>();
             services.AddTransient<IEmailSenderService, EmailSenderService>();
             services.AddTransient<IPasswordResetTokenHasherService, PasswordResetTokenHasherService>();
+            services.AddTransient<IImageStorage, ImageStorageService>();
             return services;
         }
     }
