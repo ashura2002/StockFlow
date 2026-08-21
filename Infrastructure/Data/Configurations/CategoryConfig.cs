@@ -10,9 +10,17 @@ namespace Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.HasKey(c => c.Id);
+            
             builder.Property(c => c.CategoryName)
                 .HasMaxLength(255)
                 .IsRequired();
+
+            builder.Property(c => c.Description)
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            builder.HasIndex(c => c.CategoryName)
+                .IsUnique();
         }
     }
 }

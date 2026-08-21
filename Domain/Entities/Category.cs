@@ -21,5 +21,21 @@ namespace Domain.Entities
         {
             return new Category(categoryName, description);
         }
+
+        public void UpdateCategoryName(string newCategoryName)
+        {
+            if (CategoryName == newCategoryName) return;
+
+            CategoryName = newCategoryName;
+            Touch();
+        }
+
+        public void UpdateDescription(string? newDescription)
+        {
+            if (Description == newDescription) return;
+
+            Description = newDescription;
+            Touch();
+        }
     }
 }

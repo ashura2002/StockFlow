@@ -44,12 +44,46 @@ namespace Domain.Entities
                 throw new DomainRuleException("Date of birth cannot be in the future.");
 
             return new Profile(
-                firstname, 
-                lastname, 
-                dateOfBirth, 
+                firstname,
+                lastname,
+                dateOfBirth,
                 address,
-                profilePictureUrl, 
+                profilePictureUrl,
                 profilePicturePublicId);
+        }
+
+
+        internal void UpdateFirstName(FirstNameVo newFirstName)
+        {
+            if (FirstName == newFirstName) return;
+
+            FirstName = newFirstName;
+            Touch();
+        }
+
+        internal void UpdateLastName(LastNameVo newLastName)
+        {
+            if (LastName == newLastName) return;
+
+            LastName = newLastName;
+            Touch();
+        }
+
+        internal void UpdateAddress(AddressVo newAddress)
+        {
+            if (Address == newAddress) return;
+
+            Address = newAddress;
+            Touch();
+        }
+
+        internal void UpdateProfilePicture(string profilePictureUrl, string profilePicturePublicId)
+        {
+            if (ProfilePictureUrl == profilePictureUrl) return;
+
+            ProfilePictureUrl = profilePictureUrl;
+            ProfilePicturePublicId = profilePicturePublicId;
+            Touch();
         }
     }
 }

@@ -4,16 +4,16 @@ using MediatR;
 
 namespace Application.Features.Users.Queries
 {
-    public class GetAllInActiveUsersQueryHandler : IRequestHandler<GetAllInActiveUsersQuery, IReadOnlyCollection<UserResponseDto>>
+    public class GetAllDeletedUsersQueryHandler : IRequestHandler<GetAllDeletedUsersQuery, IReadOnlyCollection<UserResponseDto>>
     {
         private readonly IUserReadRepository _userReadRepository;
 
-        public GetAllInActiveUsersQueryHandler(IUserReadRepository userReadRepository)
+        public GetAllDeletedUsersQueryHandler(IUserReadRepository userReadRepository)
         {
             _userReadRepository = userReadRepository;
         }
 
-        public async Task<IReadOnlyCollection<UserResponseDto>> Handle(GetAllInActiveUsersQuery request, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<UserResponseDto>> Handle(GetAllDeletedUsersQuery request, CancellationToken cancellationToken)
         {
             var users = await _userReadRepository.GetAllInActiveUsersAsync(cancellationToken);
             return users;

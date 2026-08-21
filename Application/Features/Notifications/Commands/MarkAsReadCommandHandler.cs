@@ -24,7 +24,7 @@ namespace Application.Features.Notifications.Commands
         {
             var currentUserId = _currentUserService.UserId;
 
-            var notification = await _notificationWriteRepository.GetNotificationById(
+            var notification = await _notificationWriteRepository.GetNotificationByIdAsync(
                 request.NotificationId,
                 currentUserId,
                 cancellationToken) ??

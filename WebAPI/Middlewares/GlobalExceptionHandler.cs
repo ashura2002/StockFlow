@@ -1,5 +1,4 @@
 ﻿using Domain.Exceptions;
-using System.Text.Json;
 
 namespace WebAPI.Middlewares
 {

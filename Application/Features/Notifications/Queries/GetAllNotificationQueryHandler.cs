@@ -18,7 +18,7 @@ namespace Application.Features.Notifications.Queries
         public async Task<IReadOnlyCollection<NotificationResponseDto>> Handle(GetAllNotificationQuery request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
-            return await _notificationReadRepository.GetAllNotifications(currentUserId, cancellationToken);
+            return await _notificationReadRepository.GetAllNotificationsAsync(currentUserId, cancellationToken);
         }
     }
 }

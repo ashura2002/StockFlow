@@ -36,7 +36,7 @@ namespace Infrastructure.BackgroundServices
 
                 // Run the cleanup once every 24 hours.
                 // The cancellation token allows the delay to stop when the application shuts down.
-                await Task.Delay(
+                 await Task.Delay(
                     TimeSpan.FromHours(24),
                     stoppingToken);
             }

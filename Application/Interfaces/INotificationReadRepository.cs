@@ -4,6 +4,6 @@ namespace Application.Interfaces
 {
     public interface INotificationReadRepository
     {
-        Task<IReadOnlyCollection<NotificationResponseDto>> GetAllNotifications(Guid userId, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<NotificationResponseDto>> GetAllNotificationsAsync(Guid userId, CancellationToken cancellationToken);
     }
 }
