@@ -1,4 +1,6 @@
-﻿using Application.Features.Products.Commands;
+﻿using Application.Dtos;
+using Application.Features.Products.Commands;
+using Application.Features.Products.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]s")]
     [ApiController]
-    [Authorize(Roles = RolesConstant.Admin)]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -20,17 +22,93 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreaeProduct([FromBody] CreateProductRequest request, CancellationToken ct)
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult<Guid>> CreateProduct([FromBody] CreateProductRequest request, CancellationToken cancellationToken)
         {
             var command = new CreateProductCommand(
-                request.ProductName, 
-                request.Price, 
-                request.Stock, 
-                request.CategoryId, 
-                request.SupplierId, 
+                request.ProductName,
+                request.Price,
+                request.Stock,
+                request.CategoryId,
+                request.SupplierId,
                 request.ProductDescriptions);
 
-            var result = await _mediator.Send(command, ct);
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return CreatedAtAction(
+                nameof(GetProductById),
+                new { productId = result },
+                result);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyCollection<ProductResponseDto>>> GetAllProducts(
+            [FromQuery] PaginatedRequest request,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetAllProductsQuery(request.Page, request.PageSize);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("details/{productId:guid}")]
+        public async Task<ActionResult<ProductResponseDto>> GetProductById(
+            Guid productId, 
+            CancellationToken cancellationToken)
+        {
+            var query = new GetProductByIdQuery(productId);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = RolesConstant.Admin)]
+        [HttpPatch("{productId:guid}")]
+        public async Task<ActionResult> UpdateProduct(
+            Guid productId,
+            [FromBody] UpdateProductRequest request,
+            CancellationToken cancellationToken)
+        {
+            var command = new UpdateProductCommand(
+                productId,
+                request.ProductName,
+                request.Price,
+                request.Stock,
+                request.Descriptions);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpDelete("{productId:guid}")]
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult> DeleteProduct(
+            Guid productId, 
+            CancellationToken cancellationToken)
+        {
+            var command = new DeleteProductCommand(productId);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<ProductResponseDto>> SearchProductByName(
+            [FromQuery] SearchProductByNameRequest request,
+            CancellationToken cancellationToken)
+        {
+            var query = new SearchProductByNameQuery(
+                request.ProductName,
+                request.Page,
+                request.PageSize);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("deleted")]
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult<IReadOnlyCollection<DeletedProductResponseDto>>> GetAllDeletedProducts(
+            CancellationToken cancellationToken)
+        {
+            var query = new GetAllDeletedProductQuery();
+            var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
 

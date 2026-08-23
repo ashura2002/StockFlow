@@ -19,7 +19,7 @@ namespace Domain.Entities
         public string? ProductDescriptions { get; private set; }
         public string? ProductImageUrl { get; private set; }
         public string? ProductImagePublicId { get; private set; }
-
+        public DateTime? DeletedAt { get; private set; }
 
         private Product(
             ProductNameVo productName,
@@ -70,9 +70,9 @@ namespace Domain.Entities
                 productImagePublicId);
         }
 
-
         public void UpdateProductName(ProductNameVo newProductName)
         {
+            EnsureProductNotDeleted("Can't update product name if product is deleted.");
             if (ProductName == newProductName) return;
             ProductName = newProductName;
             Touch();
@@ -80,6 +80,7 @@ namespace Domain.Entities
 
         public void UpdatePrice(decimal newPrice)
         {
+            EnsureProductNotDeleted("Can't update product price if product is deleted.");
             if (Price == newPrice) return;
 
             if (newPrice <= 0)
@@ -89,12 +90,46 @@ namespace Domain.Entities
             Touch();
         }
 
+        public void UpdateProductStock(int newStock)
+        {
+            EnsureProductNotDeleted("Can't update product stock if product is deleted.");
+            if (Stock == newStock) return;
+            if (newStock < 0)
+                throw new DomainRuleException(
+                    "Stock cannot be negative.");
+
+            Stock = newStock;
+            Touch();
+        }        
+
+        public void UpdateProductDescriptions(string? newDescriptions)
+        {
+            EnsureProductNotDeleted("Can't update product descriptions if product is deleted.");
+            if (ProductDescriptions == newDescriptions) return;
+            ProductDescriptions = newDescriptions;
+            Touch();
+        }
+
         public void UpdateProductImage(string? productImage)
         {
+            EnsureProductNotDeleted("Can't update product image if product is deleted.");
             if (ProductImageUrl == productImage) return;
 
             ProductImageUrl = productImage;
             Touch();
+        }
+
+        public void SoftDelete()
+        {
+            if (DeletedAt.HasValue) return;
+            DeletedAt = DateTime.UtcNow;
+            Touch();
+        }
+
+        private void EnsureProductNotDeleted(string message)
+        {
+            if (DeletedAt.HasValue)
+                throw new DomainRuleException(message);
         }
     }
 }

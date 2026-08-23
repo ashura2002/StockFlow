@@ -1,6 +1,4 @@
-﻿using Domain.Enums;
-
-namespace Application.Dtos
+﻿using Domain.Enums;namespace Application.Dtos
 {
     public record UserResponseDto(
         Guid UserId,

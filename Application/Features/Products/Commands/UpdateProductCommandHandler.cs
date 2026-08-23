@@ -1,0 +1,48 @@
+﻿using Application.Interfaces;
+using Domain.Enums;
+using Domain.Exceptions;
+using Domain.ValueObjects;
+using MediatR;
+
+namespace Application.Features.Products.Commands
+{
+    public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
+    {
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IProductWriteRepository _productWriteRepository;
+        private readonly IProductReadRepository _productReadRepository;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public UpdateProductCommandHandler(
+            ICurrentUserService currentUserService,
+            IProductWriteRepository productWriteRepository,
+            IProductReadRepository productReadRepository,
+            IUnitOfWork unitOfWork)
+        {
+            _currentUserService = currentUserService;
+            _productWriteRepository = productWriteRepository;
+            _productReadRepository = productReadRepository;
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        {
+            if (_currentUserService.Role != Role.Admin)
+                throw new DomainUnauthorizedException("Only admin can this product");
+        
+            var product = await _productWriteRepository.GetProductByIdAsync(request.ProductId, cancellationToken) ??
+                throw new DomainNotFoundException("Product not found");
+
+            var productName = ProductNameVo.Create(request.ProductName);
+
+            if (await _productReadRepository.IsProductNameExistAsync(productName.Value, product.Id, cancellationToken))
+                throw new DomainRuleException("Product name already exits.");
+
+            product.UpdateProductName(productName);
+            product.UpdatePrice(request.Price);
+            product.UpdateProductDescriptions(request.Descriptions);
+            product.UpdateProductStock(request.Stock);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+    }
+}

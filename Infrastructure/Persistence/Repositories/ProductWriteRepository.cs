@@ -24,10 +24,5 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Products
                 .FirstOrDefaultAsync(p => p.Id == productId, ct);
         }
-
-        public void Remove(Product product)
-        {
-            _context.Products.Remove(product);
-        }
     }
 }

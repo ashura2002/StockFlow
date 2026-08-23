@@ -45,6 +45,8 @@ namespace Infrastructure.Data.Configurations
 
             builder.HasIndex(p => p.ProductName)
                 .IsUnique();
+
+            builder.HasQueryFilter(p => p.DeletedAt == null);
         }
     }
 }

@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Features.Users.Queries
 {
-    public record GetAllDeletedUsersQuery() : IRequest<IReadOnlyCollection<UserResponseDto>>;
+    public record GetAllDeletedUsersQuery() : IRequest<IReadOnlyCollection<DeletedUserResponseDto>>;
 }

@@ -36,7 +36,7 @@ namespace Domain.Entities
 
         public void UpdatePassword(PasswordVo newPassword)
         {
-            EnsureNotDeleted();
+            EnsureNotDeleted("Can't update password when user is deleted.");
 
             if (Password == newPassword) return;
 
@@ -54,10 +54,10 @@ namespace Domain.Entities
             Touch();
         }
 
-        private void EnsureNotDeleted()
+        private void EnsureNotDeleted(string message)
         {
             if (DeletedAt.HasValue)
-                throw new DomainRuleException("Cannot create profile for soft deleted user.");
+                throw new DomainRuleException(message);
         }
 
 
@@ -71,7 +71,7 @@ namespace Domain.Entities
             DateOnly dateOfBirth,
             AddressVo address)
         {
-            EnsureNotDeleted();
+            EnsureNotDeleted("Can't create profile if user is deleted.");
 
             if (Profile != null)
                 throw new DomainRuleException("You already had a profile.");
@@ -86,7 +86,7 @@ namespace Domain.Entities
             LastNameVo lastName,
             AddressVo address)
         {
-            EnsureNotDeleted();
+            EnsureNotDeleted("Can't update profile if user is deleted.");
 
             if (Profile == null)
                 throw new DomainRuleException("Create your profile first");

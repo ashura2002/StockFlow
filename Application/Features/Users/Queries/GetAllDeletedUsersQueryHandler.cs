@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Features.Users.Queries
 {
-    public class GetAllDeletedUsersQueryHandler : IRequestHandler<GetAllDeletedUsersQuery, IReadOnlyCollection<UserResponseDto>>
+    public class GetAllDeletedUsersQueryHandler : IRequestHandler<GetAllDeletedUsersQuery, IReadOnlyCollection<DeletedUserResponseDto>>
     {
         private readonly IUserReadRepository _userReadRepository;
 
@@ -13,9 +13,9 @@ namespace Application.Features.Users.Queries
             _userReadRepository = userReadRepository;
         }
 
-        public async Task<IReadOnlyCollection<UserResponseDto>> Handle(GetAllDeletedUsersQuery request, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<DeletedUserResponseDto>> Handle(GetAllDeletedUsersQuery request, CancellationToken cancellationToken)
         {
-            var users = await _userReadRepository.GetAllInActiveUsersAsync(cancellationToken);
+            var users = await _userReadRepository.GetAllDeletedUsersAsync(cancellationToken);
             return users;
         }
     }

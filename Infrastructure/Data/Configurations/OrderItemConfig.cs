@@ -22,7 +22,7 @@ namespace Infrastructure.Data.Configurations
                 .WithMany()
                 .HasForeignKey(oi => oi.ProductId)
                 .OnDelete(DeleteBehavior.Restrict) //Prevents deleting product if ordered
-                .IsRequired();
+                .IsRequired(false);
         }
     }
 }
