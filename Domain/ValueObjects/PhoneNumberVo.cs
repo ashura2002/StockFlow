@@ -1,12 +1,9 @@
 ﻿using Domain.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Domain.ValueObjects
 {
-    public class PhoneNumberVo
+    public sealed record PhoneNumberVo
     {
         public string Value { get; }
 

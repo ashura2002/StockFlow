@@ -21,6 +21,7 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<UserResponseDto?> GetAdminAsync(CancellationToken cancellationToken)
         {
             return await _context.Users
+                .AsNoTracking()
                 .Where(u => u.Role == Role.Admin)
                 .Select(u => 
                     new UserResponseDto(
@@ -47,17 +48,19 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyCollection<UserResponseDto>> GetAllInActiveUsersAsync(CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<DeletedUserResponseDto>> GetAllDeletedUsersAsync(CancellationToken cancellationToken)
         {
             return await _context.Users
                 .AsNoTracking()
-                .Where(u => u.DeletedAt.HasValue)
+                .IgnoreQueryFilters()
                 .OrderByDescending(u => u.CreatedAt)
-                .Select(u => new UserResponseDto(
+                .Where(u => u.DeletedAt.HasValue)
+                .Select(u => new DeletedUserResponseDto(
                     u.Id, 
                     u.Email.Value, 
                     u.Role, 
-                    u.CreatedAt))
+                    u.CreatedAt,
+                    u.DeletedAt))
                 .ToListAsync(cancellationToken);
         }
 

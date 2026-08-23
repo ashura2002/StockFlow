@@ -1,11 +1,9 @@
 ﻿using Domain.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace Domain.ValueObjects
 {
-    public class LastNameVo
+    public sealed record LastNameVo
     {
         public string Value { get; }
 

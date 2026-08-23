@@ -1,0 +1,23 @@
+﻿namespace Application.Dtos
+{
+    public sealed record DeletedProductResponseDto(
+        Guid ProductId,
+        string ProductName,
+        decimal Price,
+        int Stock,
+        string Category,
+        string Supplier,
+        string? ProductDescriptions,
+        string? ProductImageUrl,
+        string? ProductImagePublicId,
+        DateTime? DeletedAt
+        ) : ProductResponseDto(
+            ProductId,  
+            ProductName, 
+            Price, Stock, 
+            Category, 
+            Supplier, 
+            ProductDescriptions, 
+            ProductImageUrl, 
+            ProductImagePublicId );
+}

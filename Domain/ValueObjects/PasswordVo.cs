@@ -1,11 +1,9 @@
 ﻿using Domain.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace Domain.ValueObjects
 {
-    public class PasswordVo
+    public sealed record PasswordVo
     {
         public string Value { get; }
 

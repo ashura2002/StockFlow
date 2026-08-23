@@ -43,14 +43,15 @@ namespace Application.Features.Products.Commands
             if (!await _supplierReadRepository.IsSupplierExistAsync(request.SupplierId, cancellationToken))
                 throw new DomainNotFoundException("Supplier not found.");
 
-            if (await _productReadRepository.IsProductNameExistAsync(request.ProductName, cancellationToken))
+            var productName = ProductNameVo.Create(request.ProductName);
+
+            if (await _productReadRepository.IsProductNameExistAsync(productName.Value, null, cancellationToken))
                 throw new DomainRuleException("Product name is already existed.");
 
-            var productName = ProductNameVo.Create(request.ProductName);
 
             var product = Product.Create(
                 productName, 
-                request.Price, 
+                request.Price,
                 request.Stock, 
                 request.CategoryId, 
                 request.SupplierId,

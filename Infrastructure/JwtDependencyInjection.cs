@@ -46,7 +46,7 @@ namespace Infrastructure
                               context.Response.StatusCode = 401;
                               return context.Response.WriteAsJsonAsync(new
                               {
-                                  message = "You are not authenticated"
+                                  message = "You are not authenticated."
                               });
                           },
 
@@ -55,7 +55,7 @@ namespace Infrastructure
                               context.Response.StatusCode = 403;
                               return context.Response.WriteAsJsonAsync(new
                               {
-                                  message = "Access denied (role mismatch)"
+                                  message = "Access denied (role mismatch)."
                               });
                           }
                       };

@@ -23,6 +23,8 @@ builder.Services.AddJwtAuthenticationDI(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddSwaggerDocumentation();
 
+builder.Services.AddHealthChecks();
+
 // middleware registration becuase i use Interface IMiddleware
 builder.Services.AddTransient<GlobalExceptionHandler>();
 
@@ -52,4 +54,5 @@ app.MapGet("/", () => new
     name = "Inventory Management API",
     status = "Running"
 });
+app.MapHealthChecks("/health");
 app.Run();
