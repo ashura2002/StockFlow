@@ -126,6 +126,25 @@ namespace Domain.Entities
             Touch();
         }
 
+        public void DecreaseStock(int quantity)
+        {
+            if (Stock < quantity)
+                throw new DomainRuleException("Out of stock.");
+
+            Stock -= quantity; 
+            Touch();
+        }
+
+        public void IncreaseStock(int quantity)
+        {
+            if (quantity <= 0)
+                throw new DomainRuleException(
+                    "Quantity must be greater than 0.");
+
+            Stock += quantity;
+            Touch();
+        }
+
         private void EnsureProductNotDeleted(string message)
         {
             if (DeletedAt.HasValue)

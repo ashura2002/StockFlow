@@ -7,10 +7,5 @@ namespace Application.Dtos
         string Email,
         Role Role,
         DateTime CreatedAt,
-        DateTime? DeletedAt
-        ) : UserResponseDto(
-            UserId, 
-            Email, 
-            Role,
-            CreatedAt);
+        DateTime? DeletedAt);
 }

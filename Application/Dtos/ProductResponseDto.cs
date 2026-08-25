@@ -1,7 +1,7 @@
 ﻿
 namespace Application.Dtos
 {
-    public record ProductResponseDto(
+    public sealed record ProductResponseDto(
         Guid ProductId,
         string ProductName,
         decimal Price,

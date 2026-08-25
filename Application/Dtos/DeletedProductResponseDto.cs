@@ -10,14 +10,5 @@
         string? ProductDescriptions,
         string? ProductImageUrl,
         string? ProductImagePublicId,
-        DateTime? DeletedAt
-        ) : ProductResponseDto(
-            ProductId,  
-            ProductName, 
-            Price, Stock, 
-            Category, 
-            Supplier, 
-            ProductDescriptions, 
-            ProductImageUrl, 
-            ProductImagePublicId );
+        DateTime? DeletedAt);
 }

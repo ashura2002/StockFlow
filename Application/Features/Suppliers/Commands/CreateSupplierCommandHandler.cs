@@ -11,26 +11,20 @@ namespace Application.Features.Suppliers.Commands
     {
         private readonly ISupplierWriteRepository _supplierWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrentUserService _currentUserService;
         private readonly ISupplierReadRepository _supplierReadRepository;
 
         public CreateSupplierCommandHandler(
             ISupplierWriteRepository supplierWriteRepository,
             IUnitOfWork unitOfWork,
-            ICurrentUserService currentUserService,
             ISupplierReadRepository supplierReadRepository)
         {
             _supplierWriteRepository = supplierWriteRepository;
             _unitOfWork = unitOfWork;
-            _currentUserService = currentUserService;
             _supplierReadRepository = supplierReadRepository;
         }
 
         public async Task<Guid> Handle(CreateSupplierCommand request, CancellationToken cancellationToken)
         {
-            if (_currentUserService.Role != Role.Admin)
-                throw new DomainUnauthorizedException("Only admin can add a supplier.");
-
             if (await _supplierReadRepository.IsSupplierEmailExistAsync(request.Email, cancellationToken))
                 throw new DomainRuleException("Suplier's email is already exist.");
 
