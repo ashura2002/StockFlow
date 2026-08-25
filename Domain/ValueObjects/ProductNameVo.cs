@@ -1,8 +1,9 @@
 ﻿using Domain.Exceptions;
 
+
 namespace Domain.ValueObjects
 {
-    public sealed record ProductNameVo
+    public class ProductNameVo
     {
         public string Value { get;  }
 

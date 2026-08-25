@@ -11,7 +11,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/Categories")]
     [ApiController]
-    [Authorize(Roles = RolesConstant.Admin)]
+    [Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -22,6 +22,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult<Guid>> CreateCategory(
             [FromBody] CreateCategoryRequest request, 
             CancellationToken cancellationToken)
@@ -41,6 +42,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPatch("{categoryId:guid}")]
+        [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult> UpdateCategory(
             Guid categoryId, [
             FromBody] UpdateCategoryRequest request, 
@@ -52,6 +54,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{categoryId:guid}")]
+        [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult> DeleteCategory(Guid categoryId, CancellationToken cancellationToken)
         {
             var command = new DeleteCategoryCommand(categoryId);

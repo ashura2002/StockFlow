@@ -36,6 +36,8 @@ namespace Infrastructure
             services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
             services.AddScoped<IProductReadRepository, ProductReadRepository>();
             services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
+            services.AddScoped<IOrderWriteRepository, OrderWriteRepository>();
+            services.AddScoped<IOrderReadRepository, OrderReadRepository>();
             
 
             // unit of work

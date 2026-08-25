@@ -15,23 +15,23 @@ namespace Domain.Entities
 
 
         private OrderItem(
-            Guid orderId,
             Guid productId,
             int quantity,
             decimal unitPrice)
         {
-            OrderId = orderId;
             ProductId = productId;
             Quantity = quantity;
             UnitPrice = unitPrice;
         }
 
         internal static OrderItem Create(
-            Guid orderId,
             Guid productId,
             int quantity,
             decimal unitPrice)
         {
+            if (productId == Guid.Empty)
+                throw new DomainRuleException("Atleast one product ID is required.");
+
             if (quantity <= 0)
                 throw new DomainRuleException("Quantity must above 0.");
 
@@ -40,7 +40,6 @@ namespace Domain.Entities
                     "Unit price must be greater than 0.");
 
             return new OrderItem(
-                    orderId,
                     productId,
                     quantity,
                     unitPrice);

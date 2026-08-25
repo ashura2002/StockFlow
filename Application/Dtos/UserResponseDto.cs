@@ -1,6 +1,6 @@
 ﻿using Domain.Enums;namespace Application.Dtos
 {
-    public record UserResponseDto(
+    public sealed record UserResponseDto(
         Guid UserId,
         string Email,
         Role Role,

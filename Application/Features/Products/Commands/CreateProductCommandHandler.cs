@@ -9,7 +9,6 @@ namespace Application.Features.Products.Commands
 {
     public sealed class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Guid>
     {
-        private readonly ICurrentUserService _currentUserService;
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
@@ -17,14 +16,12 @@ namespace Application.Features.Products.Commands
         private readonly IUnitOfWork _unitOfWork;
 
         public CreateProductCommandHandler(
-            ICurrentUserService currentUserService,
             IProductWriteRepository productWriteRepository,
             IProductReadRepository productReadRepository,
             ICategoryReadRepository categoryReadRepository,
             ISupplierReadRepository supplierReadRepository,
             IUnitOfWork unitOfWork)
         {
-            _currentUserService = currentUserService;
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
             _categoryReadRepository = categoryReadRepository;
@@ -34,8 +31,6 @@ namespace Application.Features.Products.Commands
 
         public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            if (_currentUserService.Role != Role.Admin)
-                throw new DomainUnauthorizedException("Only admin can create product.");
 
             if (!await _categoryReadRepository.IsCategoryExistAsync(request.CategoryId, cancellationToken))
                 throw new DomainNotFoundException("Category not found.");

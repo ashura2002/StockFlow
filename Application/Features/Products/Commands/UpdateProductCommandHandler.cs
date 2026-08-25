@@ -8,18 +8,15 @@ namespace Application.Features.Products.Commands
 {
     public sealed class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
     {
-        private readonly ICurrentUserService _currentUserService;
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateProductCommandHandler(
-            ICurrentUserService currentUserService,
             IProductWriteRepository productWriteRepository,
             IProductReadRepository productReadRepository,
             IUnitOfWork unitOfWork)
         {
-            _currentUserService = currentUserService;
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
             _unitOfWork = unitOfWork;
@@ -27,8 +24,6 @@ namespace Application.Features.Products.Commands
 
         public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-            if (_currentUserService.Role != Role.Admin)
-                throw new DomainUnauthorizedException("Only admin can this product");
         
             var product = await _productWriteRepository.GetProductByIdAsync(request.ProductId, cancellationToken) ??
                 throw new DomainNotFoundException("Product not found");
