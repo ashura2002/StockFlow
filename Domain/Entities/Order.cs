@@ -13,7 +13,7 @@ namespace Domain.Entities
 
         // total price of an Order 
         // computed in memory for domain logic.
-        public decimal TotalPrice => _orderItems.Sum(item => item.UnitPrice);
+        public decimal TotalPrice => _orderItems.Sum(item => item.UnitPrice * item.Quantity);
 
 
         private Order(Guid userId)
@@ -50,6 +50,15 @@ namespace Domain.Entities
             _orderItems.Add(newItem);
         }
 
+        public void RemoveItem(Guid productId)
+        {
+            var item = _orderItems.FirstOrDefault(i => i.ProductId == productId);
+            if (item is null) return;
+
+            _orderItems.Remove(item);
+            Touch();
+        }
+
 
         public void ConfirmOrder()
         {
@@ -73,6 +82,23 @@ namespace Domain.Entities
             Status = OrderStatus.Cancelled;
             Touch();
             return true;
+        }
+
+        public void CompleteOrder()
+        {
+            if (Status == OrderStatus.Completed) return;
+
+            if (Status != OrderStatus.Confirmed)
+                throw new DomainRuleException("Only confirmed orders can be completed");
+
+            Status = OrderStatus.Completed;
+            Touch();
+        }
+
+        public void EnsureCanBeModified()
+        {
+            if (Status != OrderStatus.Pending)
+                throw new DomainRuleException("Only pending orders can be modify.");
         }
     }
 }

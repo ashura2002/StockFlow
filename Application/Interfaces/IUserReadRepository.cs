@@ -9,5 +9,6 @@ namespace Application.Interfaces
         Task<IReadOnlyCollection<DeletedUserResponseDto>> GetAllDeletedUsersAsync(CancellationToken cancellationToken);
         Task<bool> IsEmailExistAsync(string email, CancellationToken cancellationToken);
         Task<UserResponseDto?> GetAdminAsync(CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<UserResponseDto>> GetUserByEmailAsync(string email, int page, int pageSize, CancellationToken cancellationToken);
     }
 }
