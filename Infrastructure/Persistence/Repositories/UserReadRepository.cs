@@ -64,6 +64,27 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<IReadOnlyCollection<UserResponseDto>> GetUserByEmailAsync(
+            string email,
+            int page, 
+            int pageSize, 
+            CancellationToken cancellationToken)
+        {
+            return await _context.Database.SqlQuery<UserResponseDto>($"""
+                    SELECT 
+                        u."Id" AS "UserId",
+                        u."Email" AS "Email",
+                        u."Role" AS "Role",
+                        u."CreatedAt" AS "CreatedAt"
+                    FROM "Users" AS u
+                        WHERE u."DeletedAt" IS NULL
+                        AND u."Email" ILIKE '%' || {email} || '%'
+                        ORDER BY u."CreatedAt" DESC
+                        LIMIT {pageSize}
+                        OFFSET {(page - 1 ) * pageSize}
+                """).ToListAsync(cancellationToken);
+        }
+
         public async Task<bool> IsEmailExistAsync(string email, CancellationToken cancellationToken)
         {
             return await _context.Users

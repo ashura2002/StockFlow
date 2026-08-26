@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("confirm/{orderId:guid}")]
+        [HttpPatch("{orderId:guid}/confirm")]
         [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult> ConfirmOrder(Guid orderId, CancellationToken cancellationToken)
         {
@@ -100,8 +100,30 @@ namespace WebAPI.Controllers
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
-         // update order
-         // delete order
-        // search user by email to practice raw sql
+
+
+        [HttpPatch("my-orders/{orderId:guid}")]
+        [Authorize(Roles = RolesConstant.Customer)]
+        public async Task<ActionResult> UpdateOrder(
+            Guid orderId,
+            [FromBody] UpdateOrderItemRequest request,
+            CancellationToken cancellationToken)
+        {
+            var command = new UpdateMyOrderCommand(orderId, request.OrderItems);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
+        }
+
+        [HttpPatch("{orderId:guid}/complete")]
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult> CompleteOrder(Guid orderId, CancellationToken cancellationToken)
+        {
+            var command = new CompleteOrderCommand(orderId);
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
+        }
     }
 }
+// get all confirm orders
+// cancelled orders
+// completed orders

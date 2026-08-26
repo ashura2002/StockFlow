@@ -1,6 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Features.Users.Commands;
 using Application.Features.Users.Queries;
+using CloudinaryDotNet.Core;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -91,6 +92,20 @@ namespace WebAPI.Controllers
             var command = new DeleteOwnAccountCommand();
             await _mediatR.Send(command, cancellationToken);
             return NoContent();
+        }
+
+        [HttpGet("search")]
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult<UserResponseDto>> SearchUserByEmail(
+            [FromQuery] SearchUserByEmailRequest request, 
+            CancellationToken cancellationToken)
+        {
+            var query = new SearchUserByEmailQuery(
+                request.Email, 
+                request.Page, 
+                request.PageSize);
+            var result = await _mediatR.Send(query, cancellationToken);
+            return Ok(result);
         }
 
     }
