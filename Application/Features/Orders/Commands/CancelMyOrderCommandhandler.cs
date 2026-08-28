@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Domain.Enums;
 using Domain.Exceptions;
 using MediatR;
 
@@ -33,7 +34,7 @@ namespace Application.Features.Orders.Commands
                 throw new DomainUnauthorizedException("You can only cancel your own order.");
 
             // Return false if already cancelled so the handler can stop and avoid restoring stock again.
-            var wasCancelled = order.CancelOrder();
+            var wasCancelled = order.CancelOrder(OrderCancellationSource.Customer);
             if (!wasCancelled) return;
 
             foreach (var item in order.OrderItems)

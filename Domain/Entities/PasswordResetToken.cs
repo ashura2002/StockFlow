@@ -31,13 +31,13 @@ namespace Domain.Entities
             DateTime expiresAt)
         {
             if (userId == Guid.Empty) 
-                throw new DomainRuleException("User Id is required");
+                throw new DomainBadRequestException("User Id is required");
 
             if (string.IsNullOrWhiteSpace(tokenHash))
-                throw new DomainRuleException("Token hash is required.");
+                throw new DomainBadRequestException("Token hash is required.");
 
             if (expiresAt <= DateTime.UtcNow)
-                throw new DomainRuleException(
+                throw new DomainBadRequestException(
                     "Token expiration must be in the future.");
 
             return new PasswordResetToken(userId, tokenHash, expiresAt);
@@ -46,11 +46,11 @@ namespace Domain.Entities
         public void MarkAsUsed()
         {
             if (IsUsed)
-                throw new DomainRuleException(
+                throw new DomainBadRequestException(
                     "Password reset token has already been used.");
 
             if (IsExpired)
-                throw new DomainRuleException(
+                throw new DomainBadRequestException(
                     "Password reset token has expired.");
 
             UsedAt = DateTime.UtcNow;

@@ -32,28 +32,28 @@ namespace Application.Features.Orders.Commands
             if (_currentUserService.UserId != order.UserId)
                 throw new DomainUnauthorizedException("You can only modify your own orders.");
 
-            order.EnsureCanBeModified();
+            order.EnsureIsPending("Only pending orders can be modify.");
 
-            foreach (var item in request.Items)
+            foreach (var requestedItem in request.Items)
             {
-                var existingItem = order.OrderItems.FirstOrDefault(i => i.ProductId == item.ProductId);
+                var existingItem = order.OrderItems.FirstOrDefault(i => i.ProductId == requestedItem.ProductId);
 
                 // first use case add a new item and reserve stock.
                 if (existingItem is null)
                 {
-                    var newProduct = await _productWriteRepository.GetProductByIdAsync(item.ProductId, cancellationToken) ??
+                    var newProduct = await _productWriteRepository.GetProductByIdAsync(requestedItem.ProductId, cancellationToken) ??
                         throw new DomainNotFoundException("Product not found.");
-                    newProduct.DecreaseStock(item.Quantity);
-                    order.AddItem(item.ProductId, item.Quantity, newProduct.Price);
+                    newProduct.DecreaseStock(requestedItem.Quantity);
+                    order.AddItem(requestedItem.ProductId, requestedItem.Quantity, newProduct.Price);
                     continue;
                 }
 
                 // second use case adjust the quantity of an existing item.
-                var product = await _productWriteRepository.GetProductByIdAsync(item.ProductId, cancellationToken) ??
+                var product = await _productWriteRepository.GetProductByIdAsync(requestedItem.ProductId, cancellationToken) ??
                         throw new DomainNotFoundException("Product not found.");
 
                 var oldQuantity = existingItem.Quantity;
-                var newQuantity = item.Quantity;
+                var newQuantity = requestedItem.Quantity;
                 var difference = newQuantity - oldQuantity;
 
                 if (difference > 0)
@@ -64,7 +64,7 @@ namespace Application.Features.Orders.Commands
                 {
                     product.IncreaseStock(oldQuantity - newQuantity);
                 }
-                existingItem.UpdateQuantity(item.Quantity);
+                existingItem.UpdateQuantity(requestedItem.Quantity);
             }
 
 
@@ -82,6 +82,8 @@ namespace Application.Features.Orders.Commands
                 var product = await _productWriteRepository.GetProductByIdAsync(productItem.ProductId, cancellationToken) ??
                                 throw new DomainNotFoundException("Product not found");
                 product.IncreaseStock(productItem.Quantity);
+                // safe to remove from the original collection because the foreach
+                // is iterating over the snapshot or copy, not the original collection.
                 order.RemoveItem(productItem.ProductId);
             }
 

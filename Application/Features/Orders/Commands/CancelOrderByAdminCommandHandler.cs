@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Domain.Enums;
 using Domain.Exceptions;
 using MediatR;
 namespace Application.Features.Orders.Commands
@@ -24,7 +25,7 @@ namespace Application.Features.Orders.Commands
             var order = await _orderWriteRepository.GetOrderByIdAsync(request.OrderId, cancellationToken) ??
                 throw new DomainNotFoundException("Order not found.");
 
-            var isOrderCancel = order.CancelOrder();
+            var isOrderCancel = order.CancelOrder(OrderCancellationSource.Admin);
             if (!isOrderCancel) return;
 
             foreach (var item in order.OrderItems)

@@ -53,8 +53,8 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Users
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .OrderByDescending(u => u.CreatedAt)
                 .Where(u => u.DeletedAt.HasValue)
+                .OrderByDescending(u => u.CreatedAt)
                 .Select(u => new DeletedUserResponseDto(
                     u.Id, 
                     u.Email.Value, 
@@ -83,6 +83,20 @@ namespace Infrastructure.Persistence.Repositories
                         LIMIT {pageSize}
                         OFFSET {(page - 1 ) * pageSize}
                 """).ToListAsync(cancellationToken);
+        }
+
+        public async Task<UserResponseDto?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .Select(u => 
+                new UserResponseDto(
+                    u.Id, 
+                    u.Email.Value, 
+                    u.Role, 
+                    u.CreatedAt))
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<bool> IsEmailExistAsync(string email, CancellationToken cancellationToken)

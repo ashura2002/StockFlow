@@ -54,6 +54,40 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("confirmed-orders")]
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult<IReadOnlyCollection<AdminOrderResponseDto>>> GetAllConfirmedOrders(
+            [FromQuery] PaginatedRequest request,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetAllConfirmOrdersQuery(request.Page, request.PageSize);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("cancelled-orders")]
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult<IReadOnlyCollection<AdminOrderResponseDto>>> GetAllCancelledOrders(
+            [FromQuery] PaginatedRequest request,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetAllCancelledOrdersQuery(request.Page, request.PageSize);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("completed-orders")]
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult<IReadOnlyCollection<AdminOrderResponseDto>>> GetAllCompletedOrders(
+          [FromQuery] PaginatedRequest request,
+          CancellationToken cancellationToken)
+        {
+            var query = new GetAllCompletedOrdersQuery(request.Page, request.PageSize);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+
         [HttpPatch("{orderId:guid}/confirm")]
         [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult> ConfirmOrder(Guid orderId, CancellationToken cancellationToken)
@@ -82,6 +116,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("my-orders")]
+        [Authorize(Roles = RolesConstant.Customer)]
         public async Task<ActionResult<IReadOnlyCollection<CustomerOrderResponseDto>>> GetAllMyOrders(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
@@ -124,6 +159,4 @@ namespace WebAPI.Controllers
         }
     }
 }
-// get all confirm orders
-// cancelled orders
-// completed orders
+

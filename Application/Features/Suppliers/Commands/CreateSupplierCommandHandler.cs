@@ -25,12 +25,12 @@ namespace Application.Features.Suppliers.Commands
 
         public async Task<Guid> Handle(CreateSupplierCommand request, CancellationToken cancellationToken)
         {
-            if (await _supplierReadRepository.IsSupplierEmailExistAsync(request.Email, cancellationToken))
-                throw new DomainRuleException("Suplier's email is already exist.");
-
             var emailVo = EmailVo.Create(request.Email);
             var phoneNumberVo = PhoneNumberVo.Create(request.PhoneNumber);
             var addressVo = AddressVo.Create(request.Address);
+
+            if (await _supplierReadRepository.IsSupplierEmailExistAsync(request.Email, null, cancellationToken))
+                throw new DomainConflictException("Supplier's email is already exist.");
 
             var supplier = Supplier.Create(request.SupplierName, emailVo, phoneNumberVo, addressVo);
             _supplierWriteRepository.Add(supplier); 

@@ -28,12 +28,10 @@ namespace Application.Features.Users.Commands
 
         public async Task<Guid> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
-            if (await _userRead.IsEmailExistAsync(request.Email, cancellationToken))
-                throw new DomainRuleException("Email already exist.");
-
             var emailVo = EmailVo.Create(request.Email);
+            if (await _userRead.IsEmailExistAsync(emailVo.Value, cancellationToken))
+                throw new DomainConflictException("Email already exists.");
             var passwordVo = PasswordVo.Create(request.Password);
-
             var hashPassword = _passwordService.HashPassword(passwordVo.Value);
 
             var user = User.Create(emailVo, Role.Customer, PasswordVo.Create(hashPassword));

@@ -24,14 +24,14 @@ namespace Application.Features.Products.Commands
 
         public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-        
-            var product = await _productWriteRepository.GetProductByIdAsync(request.ProductId, cancellationToken) ??
-                throw new DomainNotFoundException("Product not found");
 
             var productName = ProductNameVo.Create(request.ProductName);
 
+            var product = await _productWriteRepository.GetProductByIdAsync(request.ProductId, cancellationToken) ??
+                throw new DomainNotFoundException("Product not found");
+
             if (await _productReadRepository.IsProductNameExistAsync(productName.Value, product.Id, cancellationToken))
-                throw new DomainRuleException("Product name already exits.");
+                throw new DomainConflictException("Product name already exits.");
 
             product.UpdateProductName(productName);
             product.UpdatePrice(request.Price);

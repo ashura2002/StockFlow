@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using Domain.Events;
 using Domain.Exceptions;
 
 namespace Domain.Entities
@@ -10,9 +11,6 @@ namespace Domain.Entities
         public OrderStatus Status { get; private set; }
         private readonly List<OrderItem> _orderItems = new();
         public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
-
-        // total price of an Order 
-        // computed in memory for domain logic.
         public decimal TotalPrice => _orderItems.Sum(item => item.UnitPrice * item.Quantity);
 
 
@@ -25,7 +23,7 @@ namespace Domain.Entities
         public static Order Create(Guid userId)
         {
             var order = new Order(userId);
-            // raise event here
+            order.RaiseEvent(new OrderCreatedDomainEvent(order.Id, order.UserId));
             return order;
         }
 
@@ -36,7 +34,7 @@ namespace Domain.Entities
             decimal unitPrice)
         {
             if (quantity <= 0)
-                throw new DomainRuleException(
+                throw new DomainBadRequestException(
                     "Quantity must be greater than 0.");
 
             var existingItem = _orderItems.FirstOrDefault(p => p.ProductId == productId);
@@ -64,22 +62,23 @@ namespace Domain.Entities
         {
             if (Status == OrderStatus.Confirmed) return;
 
-            if (Status != OrderStatus.Pending)
-                throw new DomainRuleException("Only pending order can be confirmed.");
+           EnsureIsPending("Only pending order can be confirmed.");
 
             Status = OrderStatus.Confirmed;
-            // raise event here
+            RaiseEvent(new OrderConfirmedDomainEvent(Id, UserId));
             Touch();
         }
 
-        public bool CancelOrder()
+        public bool CancelOrder(OrderCancellationSource source)
         {
             if (Status == OrderStatus.Cancelled) return false;
 
-            if(Status != OrderStatus.Pending)
-                throw new DomainRuleException("Only pending order can be cancelled.");
+            EnsureIsPending("Only pending order can be cancelled.");
 
             Status = OrderStatus.Cancelled;
+            // include the cancellation source so the domain event handler
+            // can determine whether to notify the admin or the customer.
+            RaiseEvent(new OrderCancelledDomainEvent(Id, UserId, source));
             Touch();
             return true;
         }
@@ -89,16 +88,18 @@ namespace Domain.Entities
             if (Status == OrderStatus.Completed) return;
 
             if (Status != OrderStatus.Confirmed)
-                throw new DomainRuleException("Only confirmed orders can be completed");
+                throw new DomainBadRequestException("Only confirmed orders can be completed");
 
             Status = OrderStatus.Completed;
+            RaiseEvent(new OrderCompletedDomainEvent(Id, UserId));
             Touch();
         }
 
-        public void EnsureCanBeModified()
+        public void EnsureIsPending(string message)
         {
             if (Status != OrderStatus.Pending)
-                throw new DomainRuleException("Only pending orders can be modify.");
+                throw new DomainBadRequestException(message);
         }
     }
 }
+

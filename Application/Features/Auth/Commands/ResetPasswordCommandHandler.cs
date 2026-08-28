@@ -34,10 +34,10 @@ namespace Application.Features.Auth.Commands
 
             // Return without revealing whether the reset token exists.
             var resetToken = await _passwordResetTokenRepository.GetByTokenHashAsync(tokenHash, cancellationToken) ?? 
-                throw new DomainRuleException("Invalid or expired password reset token.");
+                throw new DomainBadRequestException("Invalid or expired password reset token.");
 
             if (resetToken.IsUsed || resetToken.IsExpired)
-                throw new DomainRuleException("Invalid or expired password reset token.");
+                throw new DomainBadRequestException("Invalid or expired password reset token.");
 
             var user = await _userWriteRepository.GetUserByIdAsync(resetToken.UserId, cancellationToken);
             if (user is null) return;

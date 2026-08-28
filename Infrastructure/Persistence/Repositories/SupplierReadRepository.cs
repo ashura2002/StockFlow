@@ -31,11 +31,12 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync(ct);
         }
 
-        public async Task<bool> IsSupplierEmailExistAsync(string email, CancellationToken ct)
+        public async Task<bool> IsSupplierEmailExistAsync(string email, Guid? excludingSupplierId, CancellationToken ct)
         {
             return await _context.Suppliers
                 .AsNoTracking()
-                .AnyAsync(s => s.Email == EmailVo.Create(email),ct);
+                .AnyAsync(s => s.Email == EmailVo.Create(email) &&
+                    (excludingSupplierId == null || s.Id != excludingSupplierId), ct);
         }
 
         public async Task<bool> IsSupplierExistAsync(Guid supplierId, CancellationToken ct)

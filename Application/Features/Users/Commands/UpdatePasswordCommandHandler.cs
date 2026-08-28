@@ -27,12 +27,12 @@ namespace Application.Features.Users.Commands
         public async Task Handle(UpdatePasswordCommand request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
-            var passwordVo = PasswordVo.Create(request.Password);
-
             var user = await _userWriteRepository.GetUserByIdAsync(currentUserId, cancellationToken) ??
-                throw new DomainNotFoundException("User not found.");
+            throw new DomainNotFoundException("User not found.");
             if (user.Id != currentUserId)
                 throw new DomainUnauthorizedException("Not allowed to modify other user's password.");
+
+            var passwordVo = PasswordVo.Create(request.Password);
             var hashPassword = _passwordService.HashPassword(passwordVo.Value);
 
             user.UpdatePassword(PasswordVo.Create(hashPassword));

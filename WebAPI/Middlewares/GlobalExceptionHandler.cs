@@ -33,8 +33,9 @@ namespace WebAPI.Middlewares
             var statusCode = ex switch
             {
                 DomainNotFoundException => StatusCodes.Status404NotFound,
-                DomainRuleException => StatusCodes.Status400BadRequest,
+                DomainBadRequestException => StatusCodes.Status400BadRequest,
                 DomainUnauthorizedException => StatusCodes.Status401Unauthorized,
+                DomainConflictException => StatusCodes.Status409Conflict,
                 _ => StatusCodes.Status500InternalServerError
             };
 

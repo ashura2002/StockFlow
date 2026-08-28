@@ -30,7 +30,7 @@ namespace Application.Features.Orders.Commands
 
             // Validation an order must contain at least one item
             if (request.Items.Count == 0)
-                throw new DomainRuleException("Order must contain at least one item.");
+                throw new DomainBadRequestException("Order must contain at least one item.");
 
             var order = Order.Create(currentUserId); // create the Order aggregate
 

@@ -19,14 +19,14 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Products
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .OrderByDescending(p => p.CreatedAt)
                 .Where(p => p.DeletedAt.HasValue)
+                .OrderByDescending(p => p.CreatedAt)
                 .Select(p => new DeletedProductResponseDto(
                           p.Id,
                           p.ProductName.Value,
                           p.Price,
                           p.Stock,
-                          p.Category.CategoryName,
+                          p.Category.CategoryName.Value,
                           p.Supplier.Name,
                           p.ProductDescriptions,
                           p.ProductImageUrl,
@@ -45,7 +45,7 @@ namespace Infrastructure.Persistence.Repositories
                           p.ProductName.Value,
                           p.Price,
                           p.Stock,
-                          p.Category.CategoryName,
+                          p.Category.CategoryName.Value,
                           p.Supplier.Name,
                           p.ProductDescriptions,
                           p.ProductImageUrl,
@@ -65,7 +65,7 @@ namespace Infrastructure.Persistence.Repositories
                           p.ProductName.Value,
                           p.Price,
                           p.Stock,
-                          p.Category.CategoryName,
+                          p.Category.CategoryName.Value,
                           p.Supplier.Name,
                           p.ProductDescriptions,
                           p.ProductImageUrl,
