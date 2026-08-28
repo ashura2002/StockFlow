@@ -5,7 +5,7 @@ namespace Application.Dtos
     public sealed record AdminOrderResponseDto(
         Guid OrderId,
         string Email,
-        IReadOnlyCollection<OrderItemResponse> Items,
+        IReadOnlyCollection<OrderItemResponseDto> Items,
         decimal TotalPrice,
         OrderStatus Status,
         DateTime OrderedAt);

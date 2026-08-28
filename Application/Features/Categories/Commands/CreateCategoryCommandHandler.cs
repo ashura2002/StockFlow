@@ -1,7 +1,7 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
-using Domain.Enums;
 using Domain.Exceptions;
+using Domain.ValueObjects;
 using MediatR;
 
 namespace Application.Features.Categories.Commands
@@ -24,11 +24,15 @@ namespace Application.Features.Categories.Commands
 
         public async Task<Guid> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
+            var categoryNameVo = CategoryNameVo.Create(request.CategoryName);
 
-            if (await _categoryReadRepository.IsCategoryNameExistAsync(request.CategoryName, cancellationToken))
-                throw new DomainRuleException("Category name already existed.");
+            if (await _categoryReadRepository.IsCategoryNameExistAsync(
+                request.CategoryName, 
+                null, 
+                cancellationToken))
+                throw new DomainConflictException("Category name already existed.");
 
-            var category = Category.Create(request.CategoryName, request.Descriptions);
+            var category = Category.Create(categoryNameVo, request.Descriptions);
             _categoryWriteRepository.Add(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return category.Id;

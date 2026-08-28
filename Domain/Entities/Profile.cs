@@ -41,7 +41,7 @@ namespace Domain.Entities
             string? profilePicturePublicId = null)
         {
             if (dateOfBirth > DateOnly.FromDateTime(DateTime.Today))
-                throw new DomainRuleException("Date of birth cannot be in the future.");
+                throw new DomainBadRequestException("Date of birth cannot be in the future.");
 
             return new Profile(
                 firstname,

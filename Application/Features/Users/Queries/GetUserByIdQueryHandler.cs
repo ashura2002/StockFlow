@@ -8,23 +8,17 @@ namespace Application.Features.Users.Queries
 {
     public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserResponseDto>
     {
-        private readonly IUserWriteRepository _userWriteRepository;
+        private readonly IUserReadRepository _userReadRepository;
 
-        public GetUserByIdQueryHandler(IUserWriteRepository userWriteRepository)
+        public GetUserByIdQueryHandler(IUserReadRepository userReadRepository)
         {
-            _userWriteRepository = userWriteRepository;
+            _userReadRepository = userReadRepository;
         }
 
         public async Task<UserResponseDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            var user = await _userWriteRepository.GetUserByIdAsync(request.UserId, cancellationToken) ??
+            return await _userReadRepository.GetUserByIdAsync(request.UserId, cancellationToken) ??
                 throw new DomainNotFoundException("User not found.");
-
-            return new UserResponseDto(
-                user.Id, 
-                user.Email.Value, 
-                user.Role,
-                user.CreatedAt);
         }
     }
 }

@@ -17,12 +17,12 @@ namespace Domain.ValueObjects
         public static PasswordVo Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new DomainRuleException("Password cannot be empty.");
+                throw new DomainBadRequestException("Password cannot be empty.");
             
             value = value.Trim();
 
             if (value.Length < 5)
-                throw new DomainRuleException("Invalid password, Password must contain 5 or more characters");
+                throw new DomainBadRequestException("Invalid password, Password must contain 5 or more characters");
 
             return new PasswordVo(value);
         }

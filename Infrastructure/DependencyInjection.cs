@@ -38,6 +38,7 @@ namespace Infrastructure
             services.AddScoped<IProductWriteRepository, ProductWriteRepository>();
             services.AddScoped<IOrderWriteRepository, OrderWriteRepository>();
             services.AddScoped<IOrderReadRepository, OrderReadRepository>();
+            services.AddScoped<IDashboardReadRepository, DashboardReadRepository>();
             
 
             // unit of work
@@ -74,7 +75,6 @@ namespace Infrastructure
                 return new Cloudinary(account);
             });
 
-
             services.AddHttpClient<IResend, ResendClient>();
 
             // Background services
@@ -86,13 +86,15 @@ namespace Infrastructure
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
             services.AddScoped<INotificationReadRepository, NotificationReadRepository>();
-            services.AddScoped<IDomainEventDispatcher, DomainEventDispather>();
             services.AddTransient<IPasswordService, PasswordService>();
             services.AddTransient<IJwtService, JwtService>();
             services.AddTransient<IPasswordTokenGeneratorService, PasswordTokenGeneratorService>();
             services.AddTransient<IEmailSenderService, EmailSenderService>();
             services.AddTransient<IPasswordResetTokenHasherService, PasswordResetTokenHasherService>();
             services.AddTransient<IImageStorage, ImageStorageService>();
+
+            // event
+            services.AddScoped<IDomainEventDispatcher, DomainEventDispather>();
             return services;
         }
     }

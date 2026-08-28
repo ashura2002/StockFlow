@@ -18,13 +18,13 @@ namespace Domain.ValueObjects
         public static PhoneNumberVo Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new DomainRuleException(
+                throw new DomainBadRequestException(
                     "Phone number cannot be empty.");
 
             value = value.Trim();
 
             if (!Regex.IsMatch(value, @"^09\d{9}$"))
-                throw new DomainRuleException(
+                throw new DomainBadRequestException(
                     "Invalid Philippine mobile phone number.");
 
             return new PhoneNumberVo(value);

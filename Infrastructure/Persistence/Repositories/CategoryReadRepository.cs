@@ -1,5 +1,6 @@
 ﻿using Application.Dtos;
 using Application.Interfaces;
+using Domain.ValueObjects;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,10 +19,10 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Categories
                 .AsNoTracking()
                 .OrderByDescending(c => c.CreatedAt)
-                .Select(s => 
+                .Select(s =>
                 new CategoryResponseDto(
-                    s.Id, 
-                    s.CategoryName, 
+                    s.Id,
+                    s.CategoryName.Value,
                     s.Description))
                 .ToListAsync(cancellationToken);
         }
@@ -33,11 +34,13 @@ namespace Infrastructure.Persistence.Repositories
                 .AnyAsync(c => c.Id == CategoryId, cancellationToken);
         }
 
-        public async Task<bool> IsCategoryNameExistAsync(string CategoryName, CancellationToken cancellationToken)
+        public async Task<bool> IsCategoryNameExistAsync(string CategoryName, Guid? excludingCategoryId, CancellationToken cancellationToken)
         {
             return await _context.Categories
                 .AsNoTracking()
-                .AnyAsync(c => c.CategoryName == CategoryName, cancellationToken);
+                .AnyAsync(c => c.CategoryName == CategoryNameVo.Create(CategoryName) &&
+                (excludingCategoryId == null || c.Id != excludingCategoryId),
+                cancellationToken);
         }
     }
 }

@@ -13,6 +13,21 @@ namespace Application.Interfaces
             int pageSize, 
             CancellationToken ct);
 
+        Task<IReadOnlyCollection<AdminOrderResponseDto>> GetAllConfirmOrdersAsync(
+           int page,
+           int pageSize,
+           CancellationToken ct);
+
+        Task<IReadOnlyCollection<AdminOrderResponseDto>> GetAllCancelledOrdersAsync(
+            int page,
+            int pageSize,
+            CancellationToken ct);
+
+        Task<IReadOnlyCollection<AdminOrderResponseDto>> GetAllCompletedOrdersAsync(
+            int page,
+            int pageSize,
+            CancellationToken ct);
+
         Task<IReadOnlyCollection<CustomerOrderResponseDto>> GetAllMyOrdersAsync(
             int page, 
             int pageSize, 

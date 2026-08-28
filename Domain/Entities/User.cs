@@ -48,7 +48,7 @@ namespace Domain.Entities
         {
             if (DeletedAt.HasValue) return;
             if (Role == Role.Admin)
-                throw new DomainRuleException("Admin accounts are not allowed to delete their own account.");
+                throw new DomainBadRequestException("Admin accounts are not allowed to delete their own account.");
 
             DeletedAt = DateTime.UtcNow;
             Touch();
@@ -57,7 +57,7 @@ namespace Domain.Entities
         private void EnsureNotDeleted(string message)
         {
             if (DeletedAt.HasValue)
-                throw new DomainRuleException(message);
+                throw new DomainBadRequestException(message);
         }
 
 
@@ -74,7 +74,7 @@ namespace Domain.Entities
             EnsureNotDeleted("Can't create profile if user is deleted.");
 
             if (Profile != null)
-                throw new DomainRuleException("You already had a profile.");
+                throw new DomainBadRequestException("You already had a profile.");
 
             Profile = Profile.Create(firstname, lastname, dateOfBirth, address);
             Touch();
@@ -89,7 +89,7 @@ namespace Domain.Entities
             EnsureNotDeleted("Can't update profile if user is deleted.");
 
             if (Profile == null)
-                throw new DomainRuleException("Create your profile first");
+                throw new DomainBadRequestException("Create your profile first");
 
             Profile.UpdateFirstName(firstName);
             Profile.UpdateLastName(lastName);
@@ -101,11 +101,11 @@ namespace Domain.Entities
         public void UpdateProfilePicture(string profilePictureUrl, string profilePicturePublicId)
         {
             if (DeletedAt != null)
-                throw new DomainRuleException(
+                throw new DomainBadRequestException(
                     "Cannot update profile of a deactivated account.");
 
             if (Profile is null)
-                throw new DomainRuleException("Profile does not exist.");
+                throw new DomainBadRequestException("Profile does not exist.");
 
             Profile.UpdateProfilePicture(profilePictureUrl, profilePicturePublicId);
             Touch();
@@ -114,11 +114,11 @@ namespace Domain.Entities
         public Profile DeleteProfile()
         {
             if (DeletedAt != null)
-                throw new DomainRuleException(
+                throw new DomainBadRequestException(
                     "Cannot delete profile of a deactivated account.");
 
             if (Profile is null)
-                throw new DomainRuleException("Profile does not exist.");
+                throw new DomainBadRequestException("Profile does not exist.");
 
             // Save the profile before removing it.
             // The Application layer will use it to delete the profile from the database.

@@ -1,6 +1,6 @@
 ﻿namespace Application.Dtos
 {
-    public sealed record OrderItemResponse(
+    public sealed record OrderItemResponseDto(
         Guid OrderItemId,
         Guid ProductId,
         string ProductName,

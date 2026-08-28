@@ -13,6 +13,7 @@ namespace Application.Features.Users.Queries
         }
         public async Task<IReadOnlyCollection<UserResponseDto>> Handle(SearchUserByEmailQuery request, CancellationToken cancellationToken)
         {
+
             return await _userReadRepository.GetUserByEmailAsync(
                 request.Email, 
                 request.Page, 

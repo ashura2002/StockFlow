@@ -31,6 +31,7 @@ namespace Application.Features.Products.Commands
 
         public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
+            var productName = ProductNameVo.Create(request.ProductName);
 
             if (!await _categoryReadRepository.IsCategoryExistAsync(request.CategoryId, cancellationToken))
                 throw new DomainNotFoundException("Category not found.");
@@ -38,10 +39,8 @@ namespace Application.Features.Products.Commands
             if (!await _supplierReadRepository.IsSupplierExistAsync(request.SupplierId, cancellationToken))
                 throw new DomainNotFoundException("Supplier not found.");
 
-            var productName = ProductNameVo.Create(request.ProductName);
-
             if (await _productReadRepository.IsProductNameExistAsync(productName.Value, null, cancellationToken))
-                throw new DomainRuleException("Product name is already existed.");
+                throw new DomainConflictException("Product name is already existed.");
 
 
             var product = Product.Create(

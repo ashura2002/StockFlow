@@ -35,9 +35,6 @@ namespace Application.Features.Profiles.Commands
             var user = await _userWriteRepository.GetUserByIdWithProfileAsync(currentUserId, cancellationToken)??
                 throw new DomainNotFoundException("User not found.");
 
-            Console.WriteLine(user);
-
-
             user.CreateProfile(firstnameVo,lastNameVo, request.DateOfBirth, addressVo);
             _profile.Add(user.Profile!);
 

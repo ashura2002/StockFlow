@@ -15,6 +15,84 @@ namespace Infrastructure.Persistence.Repositories
             _context = context;
         }
 
+        public async Task<IReadOnlyCollection<AdminOrderResponseDto>> GetAllCancelledOrdersAsync(int page, int pageSize, CancellationToken ct)
+        {
+            return await _context.Orders
+                .AsNoTracking()
+                .Where(o => o.Status == OrderStatus.Cancelled)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o =>
+                new AdminOrderResponseDto(
+                    o.Id,
+                    o.User.Email.Value,
+                    o.OrderItems.Select(oi =>
+                    new OrderItemResponseDto(
+                        oi.Id,
+                        oi.ProductId,
+                        oi.Product.ProductName.Value,
+                        oi.Quantity,
+                        oi.UnitPrice))
+                    .ToList(),
+                    o.OrderItems.Sum(oi => oi.UnitPrice * oi.Quantity),
+                    o.Status,
+                    o.CreatedAt))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+        }
+
+        public async Task<IReadOnlyCollection<AdminOrderResponseDto>> GetAllCompletedOrdersAsync(int page, int pageSize, CancellationToken ct)
+        {
+            return await _context.Orders
+              .AsNoTracking()
+              .Where(o => o.Status == OrderStatus.Completed)
+              .OrderByDescending(o => o.CreatedAt)
+              .Select(o =>
+              new AdminOrderResponseDto(
+                  o.Id,
+                  o.User.Email.Value,
+                  o.OrderItems.Select(oi =>
+                  new OrderItemResponseDto(
+                      oi.Id,
+                      oi.ProductId,
+                      oi.Product.ProductName.Value,
+                      oi.Quantity,
+                      oi.UnitPrice))
+                  .ToList(),
+                  o.OrderItems.Sum(oi => oi.UnitPrice * oi.Quantity),
+                  o.Status,
+                  o.CreatedAt))
+              .Skip((page - 1) * pageSize)
+              .Take(pageSize)
+              .ToListAsync(ct);
+        }
+
+        public async Task<IReadOnlyCollection<AdminOrderResponseDto>> GetAllConfirmOrdersAsync(int page, int pageSize, CancellationToken ct)
+        {
+            return await _context.Orders
+                .AsNoTracking()
+                .Where(o => o.Status == OrderStatus.Confirmed)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o =>
+                new AdminOrderResponseDto(
+                    o.Id,
+                    o.User.Email.Value,
+                    o.OrderItems.Select(oi => 
+                    new OrderItemResponseDto(
+                        oi.Id, 
+                        oi.ProductId, 
+                        oi.Product.ProductName.Value, 
+                        oi.Quantity, 
+                        oi.UnitPrice))
+                    .ToList(),
+                    o.OrderItems.Sum(oi => oi.UnitPrice * oi.Quantity),
+                    o.Status,
+                    o.CreatedAt))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+        }
+
         public async Task<IReadOnlyCollection<CustomerOrderResponseDto>> GetAllMyOrdersAsync(
             int page, 
             int pageSize, 
@@ -23,12 +101,12 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await _context.Orders
                 .AsNoTracking()
-                .OrderByDescending(o => o.CreatedAt)
                 .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.CreatedAt)
                 .Select(o => new CustomerOrderResponseDto(
                     o.Id,
                     o.OrderItems.Select(item =>
-                    new OrderItemResponse(
+                    new OrderItemResponseDto(
                         item.Id,
                         item.ProductId,
                         item.Product.ProductName.Value,
@@ -51,14 +129,14 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await _context.Orders
                 .AsNoTracking()
-                .OrderByDescending(o => o.CreatedAt)
                 .Where(o => o.Status == OrderStatus.Pending)
+                .OrderByDescending(o => o.CreatedAt)
                 .Select(o =>
                 new AdminOrderResponseDto(
                     o.Id,
                     o.User.Email.Value,
                     o.OrderItems.Select(item =>
-                    new OrderItemResponse(
+                    new OrderItemResponseDto(
                         item.Id, 
                         item.ProductId,
                         item.Product.ProductName.Value,
@@ -86,7 +164,7 @@ namespace Infrastructure.Persistence.Repositories
                 .Select(o => new CustomerOrderResponseDto(
                     o.Id,
                     o.OrderItems.Select(item =>
-                    new OrderItemResponse(
+                    new OrderItemResponseDto(
                         item.Id,
                         item.ProductId,
                         item.Product.ProductName.Value,
@@ -109,7 +187,7 @@ namespace Infrastructure.Persistence.Repositories
                     o.Id,
                     o.User.Email.Value,
                     o.OrderItems
-                        .Select(item => new OrderItemResponse(
+                        .Select(item => new OrderItemResponseDto(
                             item.Id,
                             item.ProductId,
                             item.Product.ProductName.Value,

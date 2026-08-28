@@ -4,7 +4,7 @@ namespace Application.Dtos
 {
     public sealed record CustomerOrderResponseDto(
         Guid OrderId,
-        IReadOnlyCollection<OrderItemResponse> Items,
+        IReadOnlyCollection<OrderItemResponseDto> Items,
         decimal TotalPrice,
         OrderStatus Status,
         DateTime OrderedAt);

@@ -31,7 +31,7 @@ namespace Application.Features.Profiles.Commands
             var user = await _userWriteRepository.GetUserByIdWithProfileAsync(currentUserId, cancellationToken) ??
                 throw new DomainNotFoundException("User not found");
 
-            user.UpdateProfile(firstNameVo,lastNameVo,addressVo);
+            user.UpdateProfile(firstNameVo, lastNameVo, addressVo);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
