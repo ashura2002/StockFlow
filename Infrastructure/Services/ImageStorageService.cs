@@ -28,7 +28,7 @@ namespace Infrastructure.Services
             var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(fileName, stream),
-                Folder = "StockFlow/profile-pictures",
+                Folder = "StockFlow/images",
                 UseFilename = true,
                 UniqueFilename = true,
                 Overwrite = false

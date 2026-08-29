@@ -1,6 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Features.Products.Commands;
 using Application.Features.Products.Queries;
+using Application.Features.Profiles.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +54,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("details/{productId:guid}")]
         public async Task<ActionResult<ProductResponseDto>> GetProductById(
-            Guid productId, 
+            Guid productId,
             CancellationToken cancellationToken)
         {
             var query = new GetProductByIdQuery(productId);
@@ -81,7 +82,7 @@ namespace WebAPI.Controllers
         [HttpDelete("{productId:guid}")]
         [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult> DeleteProduct(
-            Guid productId, 
+            Guid productId,
             CancellationToken cancellationToken)
         {
             var command = new DeleteProductCommand(productId);
@@ -112,5 +113,25 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpPatch("{productId:guid}/product-image")]
+        [Authorize(Roles = RolesConstant.Admin)]
+        public async Task<ActionResult<UploadedImage>> UpdateProductImage(
+            Guid productId, 
+            IFormFile file, 
+            CancellationToken cancellationToken)
+        {
+            await using var stream = file.OpenReadStream();
+
+            var result = await _mediator.Send(
+                new UpdateProductImageCommand(
+                    productId,
+                    stream,
+                    file.FileName,
+                    file.ContentType,
+                    file.Length),
+                cancellationToken);
+
+            return Ok(result);
+        }
     }
 }
