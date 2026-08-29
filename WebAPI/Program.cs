@@ -23,8 +23,12 @@ builder.Services.AddJwtAuthenticationDI(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddSwaggerDocumentation();
 
+// cors policy
+builder.Services.AddCorsPolicy();
+// health check
 builder.Services.AddHealthChecks();
-
+// for rate limiting 
+builder.Services.AddRateLimiting();
 // middleware registration becuase i use Interface IMiddleware
 builder.Services.AddTransient<GlobalExceptionHandler>();
 
@@ -45,6 +49,8 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionHandler>();
+app.UseCors("AllowAll");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
