@@ -1,0 +1,34 @@
+services:
+
+  stockflow-api:
+
+    image: stockflow:latest
+
+    container_name: stockflow-api
+
+    restart: always
+
+    build:
+
+      context: .
+
+      dockerfile: Dockerfile
+
+    ports:
+
+      - "8080:8080"
+
+    environment:
+
+      ASPNETCORE_ENVIRONMENT: Production
+
+      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
+
+      Jwt__Key: ${Jwt__Key}
+
+      Jwt__Issuer: StockFlow
+
+      Jwt__Audience: StockFlowUsers
+
+      SeededUser__Email: ${SeededUser__Email}
+      SeededUser__Password: ${SeededUser__Password}
