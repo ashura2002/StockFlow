@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
 
         // Upload profile picture
         [HttpPatch("profile-picture")]
-        public async Task<ActionResult<string>> UpdateProfilePicture(IFormFile file, CancellationToken cancellationToken)
+        public async Task<ActionResult<UploadedImage>> UpdateProfilePicture(IFormFile file, CancellationToken cancellationToken)
         {
             await using var stream = file.OpenReadStream();
 

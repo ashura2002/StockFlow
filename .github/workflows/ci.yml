@@ -29,3 +29,7 @@ jobs:
       # Compile the solution in Release configuration.
       - name: Build solution
         run: dotnet build InventoryManagementSystem.slnx --configuration Release --no-restore
+
+    # Run all automated tests in solution.
+      - name: Run tests
+        run: dotnet test InventoryManagementSystem.slnx --configuration Release --no-build

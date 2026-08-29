@@ -110,12 +110,17 @@ namespace Domain.Entities
             Touch();
         }
 
-        public void UpdateProductImage(string? productImage)
+        public void UpdateProductImage(string? imageUrl, string? publicId)
         {
             EnsureProductNotDeleted("Can't update product image if product is deleted.");
-            if (ProductImageUrl == productImage) return;
 
-            ProductImageUrl = productImage;
+            if (ProductImageUrl == imageUrl &&
+                ProductImagePublicId == publicId)
+                return;
+
+            ProductImageUrl = imageUrl;
+            ProductImagePublicId = publicId;
+
             Touch();
         }
 

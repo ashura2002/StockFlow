@@ -46,6 +46,7 @@ namespace Domain.Entities
             }
             var newItem = OrderItem.Create(productId, quantity, unitPrice);
             _orderItems.Add(newItem);
+            Touch();
         }
 
         public void RemoveItem(Guid productId)
@@ -62,7 +63,7 @@ namespace Domain.Entities
         {
             if (Status == OrderStatus.Confirmed) return;
 
-           EnsureIsPending("Only pending order can be confirmed.");
+            EnsureIsPending("Only pending order can be confirmed.");
 
             Status = OrderStatus.Confirmed;
             RaiseEvent(new OrderConfirmedDomainEvent(Id, UserId));

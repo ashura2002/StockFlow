@@ -3,7 +3,6 @@ using Application.Interfaces;
 using Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 
 namespace Application.Features.Profiles.Commands
 {
@@ -98,13 +97,13 @@ namespace Application.Features.Profiles.Commands
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
 
             if (request.Stream is null || request.FileSize == 0)
-                throw new ValidationException("Please select an image.");
+                throw new DomainBadRequestException("Please select an image.");
 
             if (request.FileSize > maxFileSize)
-                throw new ValidationException("Image size cannot exceed 5 MB.");
+                throw new DomainBadRequestException("Image size cannot exceed 5 MB.");
 
             if (!allowedTypes.Contains(request.ContentType))
-                throw new ValidationException("Only JPEG, PNG, and WEBP images are allowed.");
+                throw new DomainBadRequestException("Only JPEG, PNG, and WEBP images are allowed.");
         }
     }
 }
