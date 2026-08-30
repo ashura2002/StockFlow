@@ -1,10 +1,10 @@
 ﻿using Application.Dtos;
 using Application.Features.Products.Commands;
 using Application.Features.Products.Queries;
-using Application.Features.Profiles.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
 using WebAPI.RequestDtos;
 
@@ -24,7 +24,9 @@ namespace WebAPI.Controllers
 
         [HttpPost]
         [Authorize(Roles = RolesConstant.Admin)]
-        public async Task<ActionResult<Guid>> CreateProduct([FromBody] CreateProductRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<Guid>> CreateProduct(
+            [FromBody] CreateProductRequest request,
+            CancellationToken cancellationToken)
         {
             var command = new CreateProductCommand(
                 request.ProductName,
@@ -43,6 +45,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<ProductResponseDto>>> GetAllProducts(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
@@ -53,6 +56,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("details/{productId:guid}")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<ProductResponseDto>> GetProductById(
             Guid productId,
             CancellationToken cancellationToken)
@@ -91,6 +95,8 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("search")]
+
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<ProductResponseDto>> SearchProductByName(
             [FromQuery] SearchProductByNameRequest request,
             CancellationToken cancellationToken)

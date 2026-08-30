@@ -4,6 +4,7 @@ using Application.Features.Suppliers.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
 using WebAPI.RequestDtos;
 
@@ -37,13 +38,29 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<SupplierResponseDto>>> GetAllSuppliers(
             [FromQuery] PaginatedRequest request, CancellationToken cancellationToken)
         {
-            var query = new GetAllSuppliersQuery(request.Page, request.PageSize);
+            var query = new GetAllSuppliersQuery(
+                request.Page, 
+                request.PageSize);
+
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(result);
         }
+
+        [HttpGet("{supplierId:guid}")]
+        [EnableRateLimiting("GetResourcesPolicy")]
+        public async Task<ActionResult<SupplierWithProductsResponseDto>> GetSupplierByIdWithProducts(
+            Guid supplierId,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetSupplierByIdWithProductsQuery(supplierId);
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
 
         [HttpPatch("{supplierId:guid}")]
         public async Task<ActionResult> UpdateSupplier(
@@ -71,5 +88,3 @@ namespace WebAPI.Controllers
         }
     }
 }
-
-// final endpoint get supplier by id included with list of products then refactor the post method

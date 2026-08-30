@@ -3,6 +3,7 @@ using Application.Features.Dashboards.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
 
 namespace WebAPI.Controllers
@@ -19,6 +20,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<DashboardResponseDto>> GetDashboardInformation(CancellationToken cancellationToken)
         {
             var query = new GetDashboardQuery();

@@ -51,8 +51,10 @@ namespace Domain.Entities
 
         public void RemoveItem(Guid productId)
         {
-            var item = _orderItems.FirstOrDefault(i => i.ProductId == productId);
-            if (item is null) return;
+            var item = _orderItems.FirstOrDefault(i => 
+            i.ProductId == productId);
+            if (item is null) 
+                return;
 
             _orderItems.Remove(item);
             Touch();
@@ -61,7 +63,8 @@ namespace Domain.Entities
 
         public void ConfirmOrder()
         {
-            if (Status == OrderStatus.Confirmed) return;
+            if (Status == OrderStatus.Confirmed) 
+                return;
 
             EnsureIsPending("Only pending order can be confirmed.");
 
@@ -72,7 +75,8 @@ namespace Domain.Entities
 
         public bool CancelOrder(OrderCancellationSource source)
         {
-            if (Status == OrderStatus.Cancelled) return false;
+            if (Status == OrderStatus.Cancelled) 
+                return false;
 
             EnsureIsPending("Only pending order can be cancelled.");
 

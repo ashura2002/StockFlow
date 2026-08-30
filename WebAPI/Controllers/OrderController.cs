@@ -4,6 +4,7 @@ using Application.Features.Orders.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
 using WebAPI.RequestDtos;
 
@@ -34,6 +35,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("{orderId:guid}")]
         [Authorize(Roles = RolesConstant.Admin)]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<AdminOrderResponseDto>> GetOrderByIdByAdmin(
             Guid orderId,
             CancellationToken cancellationToken)
@@ -45,6 +47,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("pending-orders")]
         [Authorize(Roles = RolesConstant.Admin)]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<AdminOrderResponseDto>>> GetAllPendingOrders(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
@@ -56,6 +59,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("confirmed-orders")]
         [Authorize(Roles = RolesConstant.Admin)]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<AdminOrderResponseDto>>> GetAllConfirmedOrders(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
@@ -67,6 +71,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("cancelled-orders")]
         [Authorize(Roles = RolesConstant.Admin)]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<AdminOrderResponseDto>>> GetAllCancelledOrders(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
@@ -78,6 +83,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("completed-orders")]
         [Authorize(Roles = RolesConstant.Admin)]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<AdminOrderResponseDto>>> GetAllCompletedOrders(
           [FromQuery] PaginatedRequest request,
           CancellationToken cancellationToken)
@@ -117,6 +123,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("my-orders")]
         [Authorize(Roles = RolesConstant.Customer)]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<CustomerOrderResponseDto>>> GetAllMyOrders(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
@@ -129,6 +136,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("my-orders{orderId:guid}/details")]
         [Authorize(Roles = RolesConstant.Customer)]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<CustomerOrderResponseDto>> GetMyOrderById(Guid orderId, CancellationToken cancellationToken)
         {
             var query = new GetMyOrderByIdQuery(orderId);

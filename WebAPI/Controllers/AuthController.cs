@@ -1,6 +1,7 @@
 ﻿using Application.Features.Auth.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
@@ -17,6 +18,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("login")]
+        [EnableRateLimiting("LoginPolicy")]
         public async Task<ActionResult<LoginResponse>> Login(
             [FromBody] LoginRequest request, 
             CancellationToken cancellationToken)
