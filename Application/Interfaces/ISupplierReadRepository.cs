@@ -1,13 +1,25 @@
-﻿
-using Application.Dtos;
-using Domain.ValueObjects;
+﻿using Application.Dtos;
 
 namespace Application.Interfaces
 {
     public interface ISupplierReadRepository
     {
-        Task<bool> IsSupplierEmailExistAsync(string email, Guid? excludingSupplierId, CancellationToken ct);
-        Task<bool> IsSupplierExistAsync(Guid supplierId, CancellationToken ct);
-        Task<IReadOnlyCollection<SupplierResponseDto>> GetAllSuppliersAsync(int page, int pageSize, CancellationToken ct);
+        Task<bool> IsSupplierEmailExistAsync(
+            string email,
+            Guid? excludingSupplierId, 
+            CancellationToken ct);
+
+        Task<bool> IsSupplierExistAsync(
+            Guid supplierId, 
+            CancellationToken ct);
+
+        Task<IReadOnlyCollection<SupplierResponseDto>> GetAllSuppliersAsync(
+            int page, 
+            int pageSize, 
+            CancellationToken ct);
+
+        Task<SupplierWithProductsResponseDto?> GetSupplierByIdWithProductsAsync(
+            Guid supplierId, 
+            CancellationToken cancellationToken);
     }
 }

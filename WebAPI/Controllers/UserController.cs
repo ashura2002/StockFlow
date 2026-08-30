@@ -5,6 +5,7 @@ using CloudinaryDotNet.Core;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
 using WebAPI.RequestDtos;
 
@@ -38,6 +39,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = RolesConstant.Admin)]
         [HttpGet("{userId:guid}")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<UserResponseDto>> GetUserById(
             Guid userId,
             CancellationToken cancellationToken)
@@ -55,6 +57,7 @@ namespace WebAPI.Controllers
 
         [Authorize(Roles = RolesConstant.Admin)]
         [HttpGet("active")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<UserResponseDto>>> GetAllUsers(
             [FromQuery] PaginatedRequest request,
             CancellationToken cancellationToken)
@@ -63,17 +66,6 @@ namespace WebAPI.Controllers
             var result = await _mediatR.Send(queries, cancellationToken);
 
             return Ok(result);
-        }
-
-        [Authorize]
-        [HttpPatch("password")]
-        public async Task<ActionResult> UpdatePassword(
-            [FromBody] UpdatePasswordRequest request,
-            CancellationToken cancellationToken)
-        {
-            var command = new UpdatePasswordCommand(request.Password);
-            await _mediatR.Send(command, cancellationToken);
-            return NoContent();
         }
 
         [Authorize(Roles = RolesConstant.Admin)]
@@ -96,6 +88,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("search")]
         [Authorize(Roles = RolesConstant.Admin)]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<UserResponseDto>> SearchUserByEmail(
             [FromQuery] SearchUserByEmailRequest request, 
             CancellationToken cancellationToken)

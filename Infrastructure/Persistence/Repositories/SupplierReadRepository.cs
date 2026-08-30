@@ -31,6 +31,34 @@ namespace Infrastructure.Persistence.Repositories
                 .ToListAsync(ct);
         }
 
+        public async Task<SupplierWithProductsResponseDto?> GetSupplierByIdWithProductsAsync(Guid supplierId, CancellationToken cancellationToken)
+        {
+            return await _context.Suppliers
+                .AsNoTracking()
+                .Where(s => s.Id == supplierId)
+                .Include(s => s.Products)
+                .Select(s =>
+                new SupplierWithProductsResponseDto(
+                    s.Id,
+                    s.Name,
+                    s.Email.Value,
+                    s.PhoneNumber.Value,
+                    s.Address.Value,
+                    s.Products.Select(p =>
+                    new ProductResponseDto(
+                        p.Id,
+                        p.ProductName.Value,
+                        p.Price,
+                        p.Stock,
+                        p.Category.CategoryName.Value,
+                        p.Supplier.Name,
+                        p.ProductDescriptions,
+                        p.ProductImageUrl,
+                        p.ProductImagePublicId))
+                    .ToList()))
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         public async Task<bool> IsSupplierEmailExistAsync(string email, Guid? excludingSupplierId, CancellationToken ct)
         {
             return await _context.Suppliers

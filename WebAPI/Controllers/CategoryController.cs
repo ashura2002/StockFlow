@@ -4,6 +4,7 @@ using Application.Features.Categories.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
 using WebAPI.RequestDtos;
 
@@ -33,6 +34,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<IReadOnlyCollection<CategoryResponseDto>>> GetAllCategories(
             CancellationToken cancellationToken)
         {
@@ -41,6 +43,16 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{categoryId:guid}")]
+        public async Task<ActionResult<CategoryWithProductsResponseDto>> GetCategoryByIdWithProducts(
+            Guid categoryId,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetCategoryByIdWithProductsQuery(categoryId);
+            var result = await _mediator.Send(query,cancellationToken);
+            return Ok(result);
+        } 
+
         [HttpPatch("{categoryId:guid}")]
         [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult> UpdateCategory(
@@ -48,7 +60,10 @@ namespace WebAPI.Controllers
             FromBody] UpdateCategoryRequest request, 
             CancellationToken cancellationToken)
         {
-            var command = new UpdateCategoryCommand(categoryId, request.CategoryName, request.Description);
+            var command = new UpdateCategoryCommand(
+                categoryId, 
+                request.CategoryName,
+                request.Description);
             await _mediator.Send(command, cancellationToken);
             return NoContent();
         }
@@ -61,6 +76,6 @@ namespace WebAPI.Controllers
             await _mediator.Send(command, cancellationToken);
             return NoContent();
         }
+
     }
 }
-// final endpoint get by id included with list of products then refactor the post method
