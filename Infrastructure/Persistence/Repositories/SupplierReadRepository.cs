@@ -36,7 +36,6 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Suppliers
                 .AsNoTracking()
                 .Where(s => s.Id == supplierId)
-                .Include(s => s.Products)
                 .Select(s =>
                 new SupplierWithProductsResponseDto(
                     s.Id,

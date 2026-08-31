@@ -34,7 +34,6 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Categories
                 .AsNoTracking()
                 .Where(c => c.Id == categoryId)
-                .Include(c => c.Products)
                 .Select(c => 
                 new CategoryWithProductsResponseDto(
                     c.Id, 
