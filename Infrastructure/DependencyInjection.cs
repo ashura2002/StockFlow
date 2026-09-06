@@ -92,6 +92,7 @@ namespace Infrastructure
             services.AddTransient<IEmailSenderService, EmailSenderService>();
             services.AddTransient<IPasswordResetTokenHasherService, PasswordResetTokenHasherService>();
             services.AddTransient<IImageStorage, ImageStorageService>();
+            services.AddScoped<ICacheService, MemoryCacheService>();
 
             // event
             services.AddScoped<IDomainEventDispatcher, DomainEventDispather>();

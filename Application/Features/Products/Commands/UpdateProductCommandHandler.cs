@@ -10,15 +10,18 @@ namespace Application.Features.Products.Commands
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICacheService _cacheService;
 
         public UpdateProductCommandHandler(
             IProductWriteRepository productWriteRepository,
             IProductReadRepository productReadRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ICacheService cacheService)
         {
             _productWriteRepository = productWriteRepository;
             _productReadRepository = productReadRepository;
             _unitOfWork = unitOfWork;
+            _cacheService = cacheService;
         }
 
         public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -37,6 +40,8 @@ namespace Application.Features.Products.Commands
             product.UpdateProductDescriptions(request.Descriptions);
             product.UpdateProductStock(request.Stock);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _cacheService.RemoveCacheResource($"product:{request.ProductId}");
         }
     }
 }

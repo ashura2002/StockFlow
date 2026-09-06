@@ -10,15 +10,18 @@ namespace Application.Features.Categories.Commands
         private readonly ICategoryWriteRepository _categoryWriteRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICacheService _cacheService;
 
         public UpdateCategoryCommandHandler(
             ICategoryWriteRepository categoryWriteRepository,
             ICategoryReadRepository categoryReadRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ICacheService cacheService)
         {
             _categoryWriteRepository = categoryWriteRepository;
             _categoryReadRepository = categoryReadRepository;
             _unitOfWork = unitOfWork;
+            _cacheService = cacheService;
         }
         public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
@@ -32,6 +35,7 @@ namespace Application.Features.Categories.Commands
             category.UpdateDescription(request.Description);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            _cacheService.RemoveCacheResource($"category:{request.CategoryId}");
         }
     }
 }

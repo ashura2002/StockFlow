@@ -29,6 +29,8 @@ builder.Services.AddCorsPolicy();
 builder.Services.AddHealthChecks();
 // for rate limiting 
 builder.Services.AddRateLimiting();
+// for cachingggg
+builder.Services.AddMemoryCache();
 
 
 // middleware registration becuase i use Interface IMiddleware
