@@ -15,7 +15,7 @@ namespace Infrastructure
         {
 
             var jwtSettings = configuration.GetSection("Jwt").Get<JwtSettings>()
-                ?? throw new InvalidOperationException("JWT settings are missing."); ;
+                ?? throw new InvalidOperationException("JWT settings are missing.");
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                   .AddJwtBearer(options =>
