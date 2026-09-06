@@ -16,10 +16,5 @@ namespace Infrastructure.Persistence.Repositories
         {
             _context.Profiles.Add(profile);
         }
-
-        public void Remove(Profile profile)
-        {
-            _context.Profiles.Remove(profile);
-        }
     }
 }

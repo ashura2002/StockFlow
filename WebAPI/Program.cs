@@ -29,6 +29,8 @@ builder.Services.AddCorsPolicy();
 builder.Services.AddHealthChecks();
 // for rate limiting 
 builder.Services.AddRateLimiting();
+
+
 // middleware registration becuase i use Interface IMiddleware
 builder.Services.AddTransient<GlobalExceptionHandler>();
 
@@ -49,11 +51,11 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionHandler>();
+app.UseSerilogRequestLogging(); // log all successfull request at elapsed time
 app.UseCors("AllowAll");
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 app.MapGet("/", () => new
 {

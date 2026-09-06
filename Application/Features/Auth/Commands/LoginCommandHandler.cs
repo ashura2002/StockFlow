@@ -12,7 +12,7 @@ namespace Application.Features.Auth.Commands
         private readonly IJwtService _jwtService;
 
         public LoginCommandHandler(
-            IUserWriteRepository userWriteRepository,
+            IUserWriteRepository userWriteRepository,   
             IPasswordService passwordService,
             IJwtService jwtService)
         {
@@ -24,12 +24,12 @@ namespace Application.Features.Auth.Commands
 
         public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userWriteRepository.GetUserByEmailAsync(request.Email, cancellationToken) ??
-                throw new DomainNotFoundException("User not found.");
+            var user = await _userWriteRepository.GetUserByEmailAsync(request.Email, cancellationToken);
 
-            bool isPasswordMatch = _passwordService.Verify(request.Password, user.Password.Value);
-            if (!isPasswordMatch) throw new DomainUnauthorizedException("Invalid credentials.");
-
+            if (user is null || !_passwordService.Verify(request.Password, user.Password.Value))
+            {
+                throw new DomainUnauthorizedException("Invalid email or password.");
+            }
             return _jwtService.GenerateToken(user);
         }
     }

@@ -1,8 +1,9 @@
 ﻿using Domain.Exceptions;
+using FluentValidation;
 
 namespace WebAPI.Middlewares
 {
-    public class GlobalExceptionHandler : IMiddleware
+    public sealed class GlobalExceptionHandler : IMiddleware
     {
         private readonly ILogger<GlobalExceptionHandler> _logger;
 
@@ -16,12 +17,12 @@ namespace WebAPI.Middlewares
         {
             try
             {
-                _logger.LogInformation("Request started. {RequestPath}", context.Request.Path);
                 await next(context);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception occurred");
+                _logger.LogError(ex, "Unhandled exception occurred in {RequestPath}.",
+                    context.Request.Path);
                 await HandleException(context, ex);
             }
         }
@@ -36,6 +37,7 @@ namespace WebAPI.Middlewares
                 DomainBadRequestException => StatusCodes.Status400BadRequest,
                 DomainUnauthorizedException => StatusCodes.Status401Unauthorized,
                 DomainConflictException => StatusCodes.Status409Conflict,
+                ValidationException => StatusCodes.Status400BadRequest, // para sa fluent validationnnnnnnn
                 _ => StatusCodes.Status500InternalServerError
             };
 
@@ -46,14 +48,26 @@ namespace WebAPI.Middlewares
                 ? "An unexpected error occurred."
                 : ex.Message;
 
+            var errors = ex is ValidationException validationException ?
+                 validationException.Errors
+                 .GroupBy(error => error.PropertyName)
+                 .ToDictionary(
+                     g => g.Key,
+                     g => g.Select(err => err.ErrorMessage).ToList()) :
+                     null;
+
             var response = new ErrorResult(
                 statusCode,
                 message,
-                context.TraceIdentifier);
+                context.TraceIdentifier,
+                errors);
 
             await context.Response.WriteAsJsonAsync(response);
         }
 
-        public record ErrorResult(int StatusCode, string Message, string TraceId);
+        public record ErrorResult(int StatusCode, 
+            string Message, 
+            string TraceId, 
+            object? Errors);
     }
 }
