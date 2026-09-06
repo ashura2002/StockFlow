@@ -100,9 +100,7 @@ namespace Domain.Entities
 
         public void UpdateProfilePicture(string profilePictureUrl, string profilePicturePublicId)
         {
-            if (DeletedAt != null)
-                throw new DomainBadRequestException(
-                    "Cannot update profile of a deactivated account.");
+            EnsureNotDeleted("Cannot update profile of a deactivated account.");
 
             if (Profile is null)
                 throw new DomainBadRequestException("Profile does not exist.");
@@ -111,26 +109,15 @@ namespace Domain.Entities
             Touch();
         }
 
-        public Profile DeleteProfile()
+        public void DeleteProfile()
         {
-            if (DeletedAt != null)
-                throw new DomainBadRequestException(
-                    "Cannot delete profile of a deactivated account.");
+            EnsureNotDeleted("Cannot delete profile of a deactivated account.");
 
             if (Profile is null)
                 throw new DomainBadRequestException("Profile does not exist.");
 
-            // Save the profile before removing it.
-            // The Application layer will use it to delete the profile from the database.
-            var profile = Profile;
-
-            // Remove the Profile from the aggregate to keep the domain model consistent.
-            // This only changes the in-memory object, the database is not affected
-            // until the Application layer calls SaveChanges().
             Profile = null;
-
             Touch();
-            return profile;
         }
 
     }

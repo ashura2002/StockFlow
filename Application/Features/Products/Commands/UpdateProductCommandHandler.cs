@@ -1,5 +1,4 @@
 ﻿using Application.Interfaces;
-using Domain.Enums;
 using Domain.Exceptions;
 using Domain.ValueObjects;
 using MediatR;

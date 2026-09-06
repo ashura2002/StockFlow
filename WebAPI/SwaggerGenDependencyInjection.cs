@@ -12,7 +12,7 @@ namespace WebAPI
             {
                 opt.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "Inventory System",
+                    Title = "StockFlow",
                     Description = """
                         A RESTful API for managing products, categories, suppliers, users, and customer orders.
 

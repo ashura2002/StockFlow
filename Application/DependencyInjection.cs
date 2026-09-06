@@ -1,6 +1,8 @@
-﻿using Application.Events;
+﻿using Application.Behaviors;
+using Application.Events;
 using Application.Interfaces;
 using Domain.Events;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 
@@ -15,10 +17,14 @@ namespace Application
 
             // for mediatR registration
             services.AddMediatR(config =>
-            // Scan the assembly and automatically register all IRequestHandler implementations
-            config.RegisterServicesFromAssembly(assembly)
+            {
+                // Scan the assembly and automatically register all IRequestHandler implementations
+                config.RegisterServicesFromAssembly(assembly);
+                config.AddOpenBehavior(typeof(ValidatorBehavior<,>));
+            }
             );
 
+            services.AddValidatorsFromAssembly(assembly);
 
             // events
             services.AddScoped<IDomainEventHandler<RegisteredUserDomainEvent>, RegisterUserDomainEventHandler>();

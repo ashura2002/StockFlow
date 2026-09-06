@@ -1,7 +1,6 @@
 ﻿using Application.Dtos;
 using Application.Features.Users.Commands;
 using Application.Features.Users.Queries;
-using CloudinaryDotNet.Core;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
