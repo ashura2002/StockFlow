@@ -52,11 +52,11 @@ namespace Domain.Entities
           string? productImagePublicId = null)
         {
             if (price <= 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleViolationException(
                     "Price must be greater than 0.");
 
             if (stock < 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleViolationException(
                     "Stock cannot be negative.");
 
             return new Product(
@@ -84,7 +84,7 @@ namespace Domain.Entities
             if (Price == newPrice) return;
 
             if (newPrice <= 0)
-                throw new DomainBadRequestException("Price must be greater than 0.");
+                throw new DomainRuleViolationException("Price must be greater than 0.");
 
             Price = newPrice;
             Touch();
@@ -95,7 +95,7 @@ namespace Domain.Entities
             EnsureProductNotDeleted("Can't update product stock if product is deleted.");
             if (Stock == newStock) return;
             if (newStock < 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleViolationException(
                     "Stock cannot be negative.");
 
             Stock = newStock;
@@ -134,7 +134,7 @@ namespace Domain.Entities
         public void DecreaseStock(int quantity)
         {
             if (Stock < quantity)
-                throw new DomainBadRequestException("Out of stock.");
+                throw new DomainRuleViolationException("Out of stock.");
 
             Stock -= quantity; 
             Touch();
@@ -143,7 +143,7 @@ namespace Domain.Entities
         public void IncreaseStock(int quantity)
         {
             if (quantity <= 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleViolationException(
                     "Quantity must be greater than 0.");
 
             Stock += quantity;
@@ -153,7 +153,7 @@ namespace Domain.Entities
         private void EnsureProductNotDeleted(string message)
         {
             if (DeletedAt.HasValue)
-                throw new DomainBadRequestException(message);
+                throw new DomainRuleViolationException(message);
         }
     }
 }

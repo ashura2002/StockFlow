@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Infrastructure.Services
 {
-    public sealed class PasswordResetTokenHasherService : IPasswordResetTokenHasherService
+    public sealed class TokenHasherService : ITokenHasherService
     {
         public string Hash(string token)
         {

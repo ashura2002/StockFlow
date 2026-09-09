@@ -55,7 +55,7 @@ public sealed class ProductTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Price must be greater than 0.");
     }
 
@@ -79,7 +79,7 @@ public sealed class ProductTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Stock cannot be negative.");
     }
 
@@ -107,7 +107,7 @@ public sealed class ProductTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Price must be greater than 0.");
     }
 
@@ -135,7 +135,7 @@ public sealed class ProductTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Stock cannot be negative.");
     }
 
@@ -238,7 +238,7 @@ public sealed class ProductTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Out of stock.");
     }
 
@@ -271,7 +271,7 @@ public sealed class ProductTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Quantity must be greater than 0.");
     }
 
@@ -287,7 +287,7 @@ public sealed class ProductTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Can't update product price if product is deleted.");
     }
 
@@ -303,7 +303,7 @@ public sealed class ProductTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Can't update product stock if product is deleted.");
     }
 

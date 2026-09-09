@@ -97,13 +97,13 @@ namespace Application.Features.Profiles.Commands
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
 
             if (request.Stream is null || request.FileSize == 0)
-                throw new DomainBadRequestException("Please select an image.");
+                throw new DomainRuleViolationException("Please select an image.");
 
             if (request.FileSize > maxFileSize)
-                throw new DomainBadRequestException("Image size cannot exceed 5 MB.");
+                throw new DomainRuleViolationException("Image size cannot exceed 5 MB.");
 
             if (!allowedTypes.Contains(request.ContentType))
-                throw new DomainBadRequestException("Only JPEG, PNG, and WEBP images are allowed.");
+                throw new DomainRuleViolationException("Only JPEG, PNG, and WEBP images are allowed.");
         }
     }
 }

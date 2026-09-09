@@ -1,7 +1,7 @@
 ﻿
 namespace Domain.Exceptions
 {
-    public class DomainUnauthorizedException:Exception
+    public sealed class DomainUnauthorizedException:Exception
     {
         public DomainUnauthorizedException(string message):base(message)
         {

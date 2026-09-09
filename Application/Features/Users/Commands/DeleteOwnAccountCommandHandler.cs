@@ -1,5 +1,4 @@
 ﻿using Application.Interfaces;
-using Domain.Enums;
 using Domain.Exceptions;
 using MediatR;
 
@@ -23,9 +22,6 @@ namespace Application.Features.Users.Commands
 
         public async Task Handle(DeleteOwnAccountCommand request, CancellationToken cancellationToken)
         {
-            if (_currentUserService.Role == Role.Admin)
-                throw new DomainBadRequestException("Admin account cannot be deleted");
-
             var currentUserId = _currentUserService.UserId;
             var user = await _userWriteRepository.GetUserByIdAsync(currentUserId, cancellationToken) ??
                 throw new DomainNotFoundException("User not found");

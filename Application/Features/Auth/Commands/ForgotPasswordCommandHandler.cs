@@ -10,7 +10,7 @@ namespace Application.Features.Auth.Commands
         private readonly IPasswordResetTokenRepository _resetTokenRepository;
         private readonly IPasswordTokenGeneratorService _tokenGenerator;
         private readonly IEmailSenderService _emailSender;
-        private readonly IPasswordResetTokenHasherService _tokenHasher;
+        private readonly ITokenHasherService _tokenHasher;
         private readonly IUnitOfWork _unitOfWork;
 
         public ForgotPasswordCommandHandler(
@@ -18,7 +18,7 @@ namespace Application.Features.Auth.Commands
             IPasswordResetTokenRepository resetTokenRepository,
             IPasswordTokenGeneratorService passwordTokenGeneratorService,
             IEmailSenderService emailSenderService,
-            IPasswordResetTokenHasherService passwordResetTokenHasherService,
+            ITokenHasherService passwordResetTokenHasherService,
             IUnitOfWork unitOfWork)
         {
             _userWriteRepository = userWriteRepository;

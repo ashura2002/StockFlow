@@ -1,9 +1,11 @@
-﻿using Infrastructure.Settings;
+﻿using Application.Interfaces;
+using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace Infrastructure
@@ -57,6 +59,35 @@ namespace Infrastructure
                               {
                                   message = "Access denied (role mismatch)"
                               });
+                          },
+
+                          OnTokenValidated = async context =>
+                          {
+                              var userClaim = context.Principal?.FindFirst(ClaimTypes.NameIdentifier);
+
+                              if (userClaim is null)
+                              {
+                                  context.Fail("User ID is missing.");
+                                  return;
+                              }
+
+                              if (!Guid.TryParse(userClaim.Value, out var userId))
+                              {
+                                  context.Fail("Invalid User ID.");
+                                  return;
+                              }
+                                
+
+                              var user = context.HttpContext.RequestServices.GetRequiredService<IUserReadRepository>();
+
+                              var isUserNotDeleted = await user.ExistsAsync(
+                                  userId,
+                                  context.HttpContext.RequestAborted);
+
+                              if (!isUserNotDeleted)
+                              {
+                                  context.Fail("User account is no longer active.");
+                              }
                           }
                       };
                   });

@@ -7,15 +7,15 @@ namespace Application.Features.Profiles.Queries
 {
     public sealed class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, UserWithProfileResponseDto>
     {
-        private readonly IProfileReadRepository _profileReadRepository;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IUserWriteRepository _userWriteRepository;
 
         public GetProfileQueryHandler(
-            IProfileReadRepository profileReadRepository,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+           IUserWriteRepository userWriteRepository)
         {
-            _profileReadRepository = profileReadRepository;
             _currentUserService = currentUserService;
+            _userWriteRepository = userWriteRepository;
         }
 
 
@@ -23,10 +23,18 @@ namespace Application.Features.Profiles.Queries
         {
             var currentUserId = _currentUserService.UserId;
 
-            var profile = await _profileReadRepository.GetProfileAsync(currentUserId, cancellationToken)??
-                throw new DomainNotFoundException("Profile not found");
+            var user = await _userWriteRepository.GetUserByIdWithProfileAsync(currentUserId, cancellationToken) ??
+                throw new DomainNotFoundException("User not found.");
 
-            return profile;
+            return new UserWithProfileResponseDto(
+                currentUserId, 
+                user.Email.Value, 
+                user.Profile?.FirstName.Value, 
+                user.Profile?.LastName.Value,
+                user.Profile?.DateOfBirth, 
+                user.Profile?.Address.Value, 
+                user.Profile?.ProfilePictureUrl, 
+                user.Profile?.ProfilePicturePublicId);
         }
     }
 }

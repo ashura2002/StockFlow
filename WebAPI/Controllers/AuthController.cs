@@ -1,4 +1,5 @@
 ﻿using Application.Features.Auth.Commands;
+using Application.Features.Users.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -53,6 +54,32 @@ namespace WebAPI.Controllers
                 message = "Password has been reset successfully."
             });
         }
-        
+
+
+        [HttpPost("account-restore/request")]
+        public async Task<ActionResult> RequestAccountRestore(
+            [FromBody] AccountRestoreRequest request,
+            CancellationToken cancellationToken)
+        {
+            var command = new RequestAccountRestoreCommand(request.Email);
+
+            await _mediatR.Send(command, cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpPost("account-restore/confirm")]
+        public async Task<ActionResult> ConfirmAccountRestore(
+         [FromBody] ConfirmAccountRestoreRequest request,
+         CancellationToken cancellationToken)
+        {
+            var command = new ConfirmAccountRestoreCommand(
+                request.Email,
+                request.VerificationCode);
+
+            await _mediatR.Send(command, cancellationToken);
+
+            return NoContent();
+        }
     }
 }
