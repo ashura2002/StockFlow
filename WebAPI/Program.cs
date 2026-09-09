@@ -61,7 +61,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/", () => new
 {
-    name = "Inventory Management API",
+    name = "StockFlow",
     status = "Running"
 });
 app.MapHealthChecks("/health");

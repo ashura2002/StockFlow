@@ -37,7 +37,7 @@ namespace WebAPI
                 });
 
                 options.AddFixedWindowLimiter("GetResourcesPolicy", opt => {
-                    opt.PermitLimit = 5;
+                    opt.PermitLimit = 60;
                     opt.Window = TimeSpan.FromMinutes(1);
                     opt.QueueLimit = 0;
                 });
