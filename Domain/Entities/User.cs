@@ -12,6 +12,8 @@ namespace Domain.Entities
         public PasswordVo Password { get; private set; }
         public Profile? Profile { get; private set; }
         public DateTime? DeletedAt { get; private set; }
+        public string? RestoreCodeHash { get; private set; }
+        public DateTime? RestoreCodeExpiresAt { get; private set; }
 
         private User(
             EmailVo email,
@@ -48,19 +50,51 @@ namespace Domain.Entities
         {
             if (DeletedAt.HasValue) return;
             if (Role == Role.Admin)
-                throw new DomainBadRequestException("Admin accounts are not allowed to delete their own account.");
+                throw new DomainRuleViolationException("Admin accounts are not allowed to delete their own account.");
 
             DeletedAt = DateTime.UtcNow;
+            Touch();
+        }
+
+        public void RestoreAccount()
+        {
+            if (!DeletedAt.HasValue) return;
+
+            DeletedAt = null;
             Touch();
         }
 
         private void EnsureNotDeleted(string message)
         {
             if (DeletedAt.HasValue)
-                throw new DomainBadRequestException(message);
+                throw new DomainRuleViolationException(message);
         }
 
+        public void SetRestoreCode(string codeHash, DateTime expiresAt)
+        {
+            if (!DeletedAt.HasValue)
+                throw new DomainRuleViolationException("Only deleted accounts can request account restoration.");
 
+            RestoreCodeHash = codeHash;
+            RestoreCodeExpiresAt = expiresAt;
+            Touch();
+        }
+
+        public void VerifyRestoreCode(string codeHash)
+        {
+            if (RestoreCodeHash is null || RestoreCodeExpiresAt is null)
+                throw new DomainRuleViolationException("No restoration code exists.");
+
+            if (RestoreCodeExpiresAt <= DateTime.UtcNow)
+                throw new DomainRuleViolationException("Restoration code has expired.");
+
+            if (RestoreCodeHash != codeHash)
+                throw new DomainRuleViolationException("Invalid restoration code.");
+
+            RestoreCodeHash = null;
+            RestoreCodeExpiresAt = null;
+            Touch();
+        }
 
 
         // -- PROFILE AGGREGATE CHILD --
@@ -74,7 +108,7 @@ namespace Domain.Entities
             EnsureNotDeleted("Can't create profile if user is deleted.");
 
             if (Profile != null)
-                throw new DomainBadRequestException("You already had a profile.");
+                throw new DomainRuleViolationException("You already had a profile.");
 
             Profile = Profile.Create(firstname, lastname, dateOfBirth, address);
             Touch();
@@ -89,7 +123,7 @@ namespace Domain.Entities
             EnsureNotDeleted("Can't update profile if user is deleted.");
 
             if (Profile == null)
-                throw new DomainBadRequestException("Create your profile first");
+                throw new DomainRuleViolationException("Create your profile first");
 
             Profile.UpdateFirstName(firstName);
             Profile.UpdateLastName(lastName);
@@ -103,7 +137,7 @@ namespace Domain.Entities
             EnsureNotDeleted("Cannot update profile of a deactivated account.");
 
             if (Profile is null)
-                throw new DomainBadRequestException("Profile does not exist.");
+                throw new DomainRuleViolationException("Profile does not exist.");
 
             Profile.UpdateProfilePicture(profilePictureUrl, profilePicturePublicId);
             Touch();
@@ -114,7 +148,7 @@ namespace Domain.Entities
             EnsureNotDeleted("Cannot delete profile of a deactivated account.");
 
             if (Profile is null)
-                throw new DomainBadRequestException("Profile does not exist.");
+                throw new DomainRuleViolationException("Profile does not exist.");
 
             Profile = null;
             Touch();

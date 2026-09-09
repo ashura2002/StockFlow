@@ -1,6 +1,6 @@
 ﻿namespace Application.Interfaces
 {
-    public interface IPasswordResetTokenHasherService
+    public interface ITokenHasherService
     {
         string Hash(string token);
     }

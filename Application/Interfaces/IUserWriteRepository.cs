@@ -9,5 +9,6 @@ namespace Application.Interfaces
         Task<User?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
         Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken);
         Task<User?> GetUserByIdWithProfileAsync(Guid userId, CancellationToken cancellationToken);
+        Task<User?> GetDeletedUserByEmailAsync(string email, CancellationToken cancellationToken);
     }
 }

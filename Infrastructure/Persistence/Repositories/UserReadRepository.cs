@@ -18,6 +18,12 @@ namespace Infrastructure.Persistence.Repositories
             _context = inventoryDbContext;
         }
 
+        public async Task<bool> ExistsAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            return await _context.Users
+                .AnyAsync(u => u.Id == userId, cancellationToken);
+        }
+
         public async Task<UserResponseDto?> GetAdminAsync(CancellationToken cancellationToken)
         {
             return await _context.Users

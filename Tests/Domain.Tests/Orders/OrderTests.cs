@@ -78,7 +78,7 @@ public sealed class OrderTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Quantity must be greater than 0.");
     }
 
@@ -173,7 +173,7 @@ public sealed class OrderTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Only pending order can be confirmed.");
     }
 
@@ -237,7 +237,7 @@ public sealed class OrderTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Only pending order can be cancelled.");
     }
 
@@ -266,7 +266,7 @@ public sealed class OrderTests
 
         // Assert
         act.Should()
-            .Throw<DomainBadRequestException>()
+            .Throw<DomainRuleViolationException>()
             .WithMessage("Only confirmed orders can be completed");
     }
 

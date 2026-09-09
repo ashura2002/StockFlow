@@ -29,7 +29,6 @@ namespace Infrastructure
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
             services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
             services.AddScoped<IProfileWriteRepository, ProfileWriteRepository>();
-            services.AddScoped<IProfileReadRepository, ProfileReadRepository>();
             services.AddScoped<ISupplierWriteRepository, SupplierWriteRepository>();
             services.AddScoped<ISupplierReadRepository, SupplierReadRepository>();
             services.AddScoped<ICategoryWriteRepository, CategoryWriteRepository>();
@@ -90,9 +89,9 @@ namespace Infrastructure
             services.AddTransient<IJwtService, JwtService>();
             services.AddTransient<IPasswordTokenGeneratorService, PasswordTokenGeneratorService>();
             services.AddTransient<IEmailSenderService, EmailSenderService>();
-            services.AddTransient<IPasswordResetTokenHasherService, PasswordResetTokenHasherService>();
+            services.AddTransient<ITokenHasherService, TokenHasherService>();
             services.AddTransient<IImageStorage, ImageStorageService>();
-            services.AddScoped<ICacheService, MemoryCacheService>();
+            services.AddSingleton<ICacheService, MemoryCacheService>();
 
             // event
             services.AddScoped<IDomainEventDispatcher, DomainEventDispather>();

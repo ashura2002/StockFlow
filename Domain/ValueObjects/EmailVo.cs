@@ -15,11 +15,11 @@ namespace Domain.ValueObjects
         public static EmailVo Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value)) 
-                throw new DomainBadRequestException("Email cannot be empty.");
+                throw new DomainRuleViolationException("Email cannot be empty.");
 
             value = value.Trim();
             if (!IsValidEmail(value))   
-                throw new DomainBadRequestException("Email invalid format.");
+                throw new DomainRuleViolationException("Email invalid format.");
 
             return new EmailVo(value);
         }

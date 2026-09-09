@@ -34,7 +34,7 @@ namespace Domain.Entities
             decimal unitPrice)
         {
             if (quantity <= 0)
-                throw new DomainBadRequestException(
+                throw new DomainRuleViolationException(
                     "Quantity must be greater than 0.");
 
             var existingItem = _orderItems.FirstOrDefault(p => p.ProductId == productId);
@@ -93,7 +93,7 @@ namespace Domain.Entities
             if (Status == OrderStatus.Completed) return;
 
             if (Status != OrderStatus.Confirmed)
-                throw new DomainBadRequestException("Only confirmed orders can be completed");
+                throw new DomainRuleViolationException("Only confirmed orders can be completed");
 
             Status = OrderStatus.Completed;
             RaiseEvent(new OrderCompletedDomainEvent(Id, UserId));
@@ -103,7 +103,7 @@ namespace Domain.Entities
         public void EnsureIsPending(string message)
         {
             if (Status != OrderStatus.Pending)
-                throw new DomainBadRequestException(message);
+                throw new DomainRuleViolationException(message);
         }
     }
 }

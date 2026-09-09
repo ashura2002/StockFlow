@@ -21,6 +21,13 @@ namespace Infrastructure.Persistence.Repositories
             _context.Users.Add(user);
         }
 
+        public async Task<User?> GetDeletedUserByEmailAsync(string email, CancellationToken cancellationToken)
+        {
+            return await _context.Users
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(u => u.Email == EmailVo.Create(email), cancellationToken);
+        }
+
         public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
         {
             return await _context.Users

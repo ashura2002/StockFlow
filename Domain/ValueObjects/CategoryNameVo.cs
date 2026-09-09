@@ -15,11 +15,11 @@ namespace Domain.ValueObjects
         public static CategoryNameVo Create(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new DomainBadRequestException("Category name cannot be empty.");
+                throw new DomainRuleViolationException("Category name cannot be empty.");
 
             value = value.Trim();
             if (value.Length <= 3)
-                throw new DomainBadRequestException("Category name must above 4 characters.");
+                throw new DomainRuleViolationException("Category name must above 4 characters.");
 
             return new CategoryNameVo(value);
         }

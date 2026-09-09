@@ -11,5 +11,6 @@ namespace Application.Interfaces
         Task<UserResponseDto?> GetAdminAsync(CancellationToken cancellationToken);
         Task<IReadOnlyCollection<UserResponseDto>> GetUserByEmailAsync(string email, int page, int pageSize, CancellationToken cancellationToken);
         Task<UserResponseDto?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken);
+        Task<bool> ExistsAsync(Guid userId, CancellationToken cancellationToken); 
     }
 }

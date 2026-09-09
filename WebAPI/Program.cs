@@ -11,7 +11,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
     .WriteTo.File(
-        "logs/inventory-.log",
+        "logs/StockFlow-.log",
         rollingInterval: RollingInterval.Day)
     .CreateLogger();
 builder.Host.UseSerilog();
@@ -32,9 +32,9 @@ builder.Services.AddRateLimiting();
 // for cachingggg
 builder.Services.AddMemoryCache();
 
-
-// middleware registration becuase i use Interface IMiddleware
-builder.Services.AddTransient<GlobalExceptionHandler>();
+// error handling middleware with problem details
+builder.Services.AddExceptionHandler<GlobalErrorHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -52,7 +52,7 @@ app.UseSwaggerUI();
 
 
 app.UseHttpsRedirection();
-app.UseMiddleware<GlobalExceptionHandler>();
+app.UseExceptionHandler();
 app.UseSerilogRequestLogging(); // log all successfull request at elapsed time
 app.UseCors("AllowAll");
 app.UseRateLimiter();
