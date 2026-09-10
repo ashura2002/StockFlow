@@ -13,8 +13,12 @@ namespace Application.Features.Users.Validators
 
             RuleFor(user => user.Password)
                 .NotEmpty()
-                .MinimumLength(5)
+                .MinimumLength(8)
                 .MaximumLength(50);
+
+            RuleFor(user => user.ConfirmPassword)
+                .Equal(user => user.Password)
+                .WithMessage("Password does not match.");
         }
     }
 }

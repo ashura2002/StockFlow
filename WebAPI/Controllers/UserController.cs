@@ -25,7 +25,10 @@ namespace WebAPI.Controllers
             [FromBody] CustomerRegistrationRequest request,
             CancellationToken cancellationToken)
         {
-            var command = new CreateCustomerCommand(request.Email, request.Password);
+            var command = new CreateCustomerCommand(
+                request.Email,
+                request.Password,
+                request.ConfirmPassword);
 
             var result = await _mediatR.Send(command, cancellationToken);
 
@@ -33,6 +36,21 @@ namespace WebAPI.Controllers
                 nameof(GetUserById),
                 new { userId = result },
                 result);
+        }
+
+        [Authorize]
+        [HttpPut("me/password")]
+        public async Task<ActionResult> UpdatePassword(
+            [FromBody] ChangePasswordRequest request,
+            CancellationToken cancellationToken)
+        {
+            var command = new ChangePasswordCommand(
+                request.CurrentPassword,
+                request.NewPassword,
+                request.ConfirmNewPassword);
+
+            await _mediatR.Send(command, cancellationToken);
+            return NoContent();
         }
 
 
@@ -89,12 +107,12 @@ namespace WebAPI.Controllers
         [Authorize(Roles = RolesConstant.Admin)]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<UserResponseDto>> SearchUserByEmail(
-            [FromQuery] SearchUserByEmailRequest request, 
+            [FromQuery] SearchUserByEmailRequest request,
             CancellationToken cancellationToken)
         {
             var query = new SearchUserByEmailQuery(
-                request.Email, 
-                request.Page, 
+                request.Email,
+                request.Page,
                 request.PageSize);
             var result = await _mediatR.Send(query, cancellationToken);
             return Ok(result);

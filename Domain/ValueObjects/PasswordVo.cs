@@ -18,8 +18,8 @@ namespace Domain.ValueObjects
             
             value = value.Trim();
 
-            if (value.Length < 5)
-                throw new DomainRuleViolationException("Invalid password, Password must contain 5 or more characters");
+            if (value.Length < 8)
+                throw new DomainRuleViolationException("Invalid password, Password must contain 8 or more characters");
 
             return new PasswordVo(value);
         }

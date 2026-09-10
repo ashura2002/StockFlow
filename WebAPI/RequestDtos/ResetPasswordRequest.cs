@@ -1,8 +1,6 @@
 ﻿namespace WebAPI.RequestDtos
 {
-    public sealed record ResetPasswordRequest
-    {
-        public required string RawToken { get; set; }
-        public required string NewPassword { get; set; }
-    }
+    public sealed record ResetPasswordRequest(
+        string RawToken,
+        string NewPassword);
 }
