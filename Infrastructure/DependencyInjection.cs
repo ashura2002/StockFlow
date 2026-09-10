@@ -51,6 +51,8 @@ namespace Infrastructure
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
             services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
             services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
+            services.Configure<FrontendSettings>(configuration.GetSection(FrontendSettings.SectionName));
+
 
             // external services
             // Resend
@@ -92,6 +94,7 @@ namespace Infrastructure
             services.AddTransient<ITokenHasherService, TokenHasherService>();
             services.AddTransient<IImageStorage, ImageStorageService>();
             services.AddSingleton<ICacheService, MemoryCacheService>();
+            services.AddSingleton<IFrontendUrlService, FrontendUrlService>();
 
             // event
             services.AddScoped<IDomainEventDispatcher, DomainEventDispather>();
