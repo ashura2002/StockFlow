@@ -1,11 +1,15 @@
 name: Continuous Integration
 
-# Trigger the workflow when code is pushed to the develop branch.
+# Trigger the workflow when code is pushed to develop or main.
 on:
   push:
     branches:
       - develop
+      - main
 
+  pull_request:
+    branches:
+      - main
 jobs:
   build:
     # Use a temporary Ubuntu runner to execute the CI job.
@@ -30,6 +34,6 @@ jobs:
       - name: Build solution
         run: dotnet build InventoryManagementSystem.slnx --configuration Release --no-restore
 
-    # Run all automated tests in the solution.
+      # Run all automated tests in the solution.
       - name: Run tests
         run: dotnet test InventoryManagementSystem.slnx --configuration Release --no-build
