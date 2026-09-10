@@ -12,6 +12,7 @@ namespace Application.Features.Auth.Commands
         private readonly IEmailSenderService _emailSender;
         private readonly ITokenHasherService _tokenHasher;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFrontendUrlService _frontendUrlService;
 
         public ForgotPasswordCommandHandler(
             IUserWriteRepository userWriteRepository,
@@ -19,7 +20,8 @@ namespace Application.Features.Auth.Commands
             IPasswordTokenGeneratorService passwordTokenGeneratorService,
             IEmailSenderService emailSenderService,
             ITokenHasherService passwordResetTokenHasherService,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IFrontendUrlService frontendUrlService)
         {
             _userWriteRepository = userWriteRepository;
             _resetTokenRepository = resetTokenRepository;
@@ -27,6 +29,7 @@ namespace Application.Features.Auth.Commands
             _emailSender = emailSenderService;
             _tokenHasher = passwordResetTokenHasherService;
             _unitOfWork = unitOfWork;
+            _frontendUrlService = frontendUrlService;
         }
 
         public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
@@ -51,11 +54,13 @@ namespace Application.Features.Auth.Commands
             // Persist reset token
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+            var resetUrl = _frontendUrlService.CreatePasswordResetUrl(rawToken);
+
             // Send raw token to the user's email
             await _emailSender.SendAsync(
                 user.Email.Value, 
-                "Reset your password", 
-                $"Your password reset token is: {rawToken}",
+                "Reset your password",
+                 $"Click this link to reset your password: {resetUrl}",
                 cancellationToken);
         }
     }
