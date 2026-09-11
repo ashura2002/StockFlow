@@ -2,7 +2,7 @@
 
 namespace Domain.ValueObjects
 {
-    public class PasswordVo
+    public record PasswordVo
     {
         public string Value { get; }
 

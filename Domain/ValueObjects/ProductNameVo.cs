@@ -3,7 +3,7 @@
 
 namespace Domain.ValueObjects
 {
-    public class ProductNameVo
+    public record ProductNameVo
     {
         public string Value { get;  }
 
