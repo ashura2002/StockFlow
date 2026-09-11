@@ -11,7 +11,7 @@ namespace Application.Features.Users.Commands
         private readonly IUnitOfWork _unitOfWork;
 
         public DeleteOwnAccountCommandHandler(
-            ICurrentUserService currentUserService, 
+            ICurrentUserService currentUserService,
             IUserWriteRepository userWriteRepository,
             IUnitOfWork unitOfWork)
         {
@@ -25,6 +25,12 @@ namespace Application.Features.Users.Commands
             var currentUserId = _currentUserService.UserId;
             var user = await _userWriteRepository.GetUserByIdAsync(currentUserId, cancellationToken) ??
                 throw new DomainNotFoundException("User not found");
+
+            if (!string.Equals(
+                user.Email.Value, 
+                request.Email, 
+                StringComparison.OrdinalIgnoreCase)) // ignore uppercase and lowercase when comparing.
+                throw new DomainRuleViolationException("Email does not match.");
 
             user.SoftDelete();
             await _unitOfWork.SaveChangesAsync(cancellationToken);

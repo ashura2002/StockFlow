@@ -2,7 +2,7 @@
 
 namespace Domain.ValueObjects
 {
-    public class FirstNameVo
+    public record FirstNameVo
     {
         public string Value { get; }
 

@@ -3,5 +3,5 @@
 
 namespace Application.Features.Users.Commands
 {
-    public sealed record DeleteOwnAccountCommand : IRequest;
+    public sealed record DeleteOwnAccountCommand(string Email) : IRequest;
 }

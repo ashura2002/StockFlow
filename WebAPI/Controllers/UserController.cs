@@ -96,9 +96,11 @@ namespace WebAPI.Controllers
 
         [Authorize]
         [HttpDelete("me")]
-        public async Task<ActionResult> DeleteOwnAccount(CancellationToken cancellationToken)
+        public async Task<ActionResult> DeleteOwnAccount(
+            [FromBody] DeleteOwnAccountRequest request,
+            CancellationToken cancellationToken)
         {
-            var command = new DeleteOwnAccountCommand();
+            var command = new DeleteOwnAccountCommand(request.Email);
             await _mediatR.Send(command, cancellationToken);
             return NoContent();
         }
