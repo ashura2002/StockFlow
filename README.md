@@ -10,6 +10,7 @@ A backend REST API for inventory and order management built with ASP.NET Core We
 * **Authentication:** JWT, Role-Based Authorization
 * **Email:** Resend — password reset and recovery
 * **File Storage:** Cloudinary — profile and product image management
+* **Monitoring:** Sentry — error monitoring and exception tracking
 
 ## Key Features
 
