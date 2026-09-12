@@ -60,9 +60,11 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<bool> IsSupplierEmailExistAsync(string email, Guid? excludingSupplierId, CancellationToken ct)
         {
+            var emailVo = EmailVo.Create(email);
+
             return await _context.Suppliers
                 .AsNoTracking()
-                .AnyAsync(s => s.Email == EmailVo.Create(email) &&
+                .AnyAsync(s => s.Email == emailVo &&
                     (excludingSupplierId == null || s.Id != excludingSupplierId), ct);
         }
 

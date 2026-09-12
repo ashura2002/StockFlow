@@ -60,12 +60,14 @@ namespace Infrastructure.Persistence.Repositories
                 .AnyAsync(c => c.Id == CategoryId, cancellationToken);
         }
 
-        public async Task<bool> IsCategoryNameExistAsync(string CategoryName, Guid? excludingCategoryId, CancellationToken cancellationToken)
+        public async Task<bool> IsCategoryNameExistAsync(string categoryName, Guid? excludingCategoryId, CancellationToken cancellationToken)
         {
+            var categoryNameVo = CategoryNameVo.Create(categoryName);
+
             return await _context.Categories
                 .AsNoTracking()
                 .AnyAsync(c => 
-                c.CategoryName == CategoryNameVo.Create(CategoryName) &&
+                c.CategoryName == categoryNameVo &&
                 (excludingCategoryId == null || c.Id != excludingCategoryId),
                 cancellationToken);
         }

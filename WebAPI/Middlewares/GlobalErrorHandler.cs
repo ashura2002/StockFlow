@@ -17,7 +17,21 @@ namespace WebAPI.Middlewares
 
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "Unhandled exception occurred");
+
+            if (exception is DomainNotFoundException
+                or DomainRuleViolationException
+                or DomainUnauthorizedException
+                or DomainConflictException
+                or ValidationException)
+            {
+                _logger.LogWarning(exception, "Request failed handled exception occured.");
+            }
+            else
+            {
+                // log unexpected exceptions as errors for investigation
+                _logger.LogError(exception, "Unhandled exception occurred");
+            }
+
 
             var statusCode = exception switch
             {

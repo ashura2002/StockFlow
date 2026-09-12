@@ -1,4 +1,6 @@
 using Application;
+using Domain.Exceptions;
+using FluentValidation;
 using Infrastructure;
 using Infrastructure.Data;
 using Serilog;
@@ -6,6 +8,39 @@ using WebAPI;
 using WebAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+// configure Sentry for error monitoring
+builder.WebHost.UseSentry(options =>
+{
+    options.Dsn = builder.Configuration["Sentry:Dsn"];
+
+    // exceptions that are expected and should not create Sentry issues
+    var ignoreExceptions = new[]
+    {
+        typeof(DomainNotFoundException),
+        typeof(DomainConflictException),
+        typeof(DomainRuleViolationException),
+        typeof(DomainUnauthorizedException),
+        typeof(ValidationException)
+    };
+
+    // filter captured Sentry events before they are sent
+    options.SetBeforeSend((sentryEvent, hint) =>
+    {
+        var exception = sentryEvent.Exception;
+
+        // ignore expected application exceptions to prvent sentry noise
+        if (exception is not null && ignoreExceptions.Contains(exception.GetType()))
+        {
+            return null;
+        }
+
+        // send unexpected exceptions to Sentry for investigation
+        return sentryEvent;
+    });
+});
+
 // logging
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -52,8 +87,8 @@ app.UseSwaggerUI();
 
 
 app.UseHttpsRedirection();
-app.UseExceptionHandler();
 app.UseSerilogRequestLogging(); // log all successfull request at elapsed time
+app.UseExceptionHandler();
 app.UseCors("AllowAll");
 app.UseRateLimiter();
 app.UseAuthentication();
