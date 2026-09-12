@@ -30,8 +30,10 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
         {
+            var emailVo = EmailVo.Create(email);
+
             return await _context.Users
-                 .FirstOrDefaultAsync(u => u.Email== EmailVo.Create(email),
+                 .FirstOrDefaultAsync(u => u.Email == emailVo,
                  cancellationToken);
         }
 

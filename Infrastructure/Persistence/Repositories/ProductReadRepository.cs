@@ -106,9 +106,11 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<bool> IsProductNameExistAsync(string productName, Guid? productId, CancellationToken ct)
         {
+            var productNameVo = ProductNameVo.Create(productName);
+
             return await _context.Products
                 .AsNoTracking()
-                .AnyAsync(p => p.ProductName == ProductNameVo.Create(productName)
+                .AnyAsync(p => p.ProductName == productNameVo
                 && (productId == null || p.Id != productId), ct);
         }
     }
