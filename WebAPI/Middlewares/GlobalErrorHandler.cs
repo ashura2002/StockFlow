@@ -2,6 +2,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Middlewares
 {
@@ -22,9 +23,10 @@ namespace WebAPI.Middlewares
                 or DomainRuleViolationException
                 or DomainUnauthorizedException
                 or DomainConflictException
-                or ValidationException)
+                or ValidationException
+                or DbUpdateConcurrencyException)
             {
-                _logger.LogWarning(exception, "Request failed handled exception occured.");
+                _logger.LogWarning(exception, "Request failed.");
             }
             else
             {
@@ -40,6 +42,7 @@ namespace WebAPI.Middlewares
                 DomainUnauthorizedException => StatusCodes.Status401Unauthorized,
                 DomainConflictException => StatusCodes.Status409Conflict,
                 ValidationException => StatusCodes.Status400BadRequest, // para sa fluent validationnnnnnnn
+                DbUpdateConcurrencyException => StatusCodes.Status409Conflict,
                 _ => StatusCodes.Status500InternalServerError
             };
 
@@ -51,13 +54,15 @@ namespace WebAPI.Middlewares
                     g => g.Select(err =>
                     err.ErrorMessage).ToList()) : null;
 
+            var message = exception is DbUpdateConcurrencyException ?
+                "The resource was modified by another request. Please try again." : exception.Message;
 
             var problemDetails = new ProblemDetails
             {
                 Status = statusCode,
                 Detail = statusCode == StatusCodes.Status500InternalServerError ?
                 "An unexpected error occurred."
-                : exception.Message
+                : message
             };
 
             // only add errors extension when exception came from fluent validation
