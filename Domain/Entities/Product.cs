@@ -15,11 +15,15 @@ namespace Domain.Entities
 
         public Guid SupplierId { get; private set; }
         public Supplier Supplier { get; private set; } = null!;
-          
+
         public string? ProductDescriptions { get; private set; }
         public string? ProductImageUrl { get; private set; }
         public string? ProductImagePublicId { get; private set; }
         public DateTime? DeletedAt { get; private set; }
+
+        // for concurrency
+        public uint Version { get; private set; }
+
 
         private Product(
             ProductNameVo productName,
@@ -27,8 +31,8 @@ namespace Domain.Entities
             int stock,
             Guid categoryId,
             Guid supplierId,
-            string?productDescriptions = null,
-            string?productImageUrl = null,
+            string? productDescriptions = null,
+            string? productImageUrl = null,
             string? productImagePublicId = null)
         {
             ProductName = productName;
@@ -60,13 +64,13 @@ namespace Domain.Entities
                     "Stock cannot be negative.");
 
             return new Product(
-                productName, 
-                price, 
-                stock, 
-                categoryId, 
-                supplierId, 
-                productDescriptions, 
-                productImageUrl, 
+                productName,
+                price,
+                stock,
+                categoryId,
+                supplierId,
+                productDescriptions,
+                productImageUrl,
                 productImagePublicId);
         }
 
@@ -100,7 +104,7 @@ namespace Domain.Entities
 
             Stock = newStock;
             Touch();
-        }        
+        }
 
         public void UpdateProductDescriptions(string? newDescriptions)
         {
@@ -136,7 +140,7 @@ namespace Domain.Entities
             if (Stock < quantity)
                 throw new DomainRuleViolationException("Out of stock.");
 
-            Stock -= quantity; 
+            Stock -= quantity;
             Touch();
         }
 

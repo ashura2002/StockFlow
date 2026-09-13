@@ -43,6 +43,11 @@ namespace Infrastructure.Data.Configurations
             builder.Property(p => p.ProductImagePublicId)
                 .IsRequired(false);
 
+            // for concurrency
+            builder.Property(p => p.Version)
+                .HasColumnName("xmin") // postgresql
+                .IsRowVersion();
+
             builder.HasIndex(p => p.ProductName)
                 .IsUnique();
 

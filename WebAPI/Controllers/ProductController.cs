@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
-        [HttpPatch("{productId:guid}/product-image")]
+        [HttpPut("{productId:guid}/product-image")]
         [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult<UploadedImage>> UpdateProductImage(
             Guid productId, 
