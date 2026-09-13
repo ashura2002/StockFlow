@@ -54,6 +54,7 @@ namespace WebAPI.Middlewares
                     g => g.Select(err =>
                     err.ErrorMessage).ToList()) : null;
 
+            // for concurrency exception message
             var message = exception is DbUpdateConcurrencyException ?
                 "The resource was modified by another request. Please try again." : exception.Message;
 
