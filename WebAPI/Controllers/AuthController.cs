@@ -21,17 +21,17 @@ namespace WebAPI.Controllers
         [HttpPost("login")]
         [EnableRateLimiting("LoginPolicy")]
         public async Task<ActionResult<LoginResponse>> Login(
-            [FromBody] LoginRequest request, 
+            [FromBody] LoginRequest request,
             CancellationToken cancellationToken)
         {
             var command = new LoginCommand(request.Email, request.Password);
             var result = await _mediatR.Send(command, cancellationToken);
-            return new LoginResponse("Login successfully.", result);
+            return Ok(result);
         }
 
         [HttpPost("forgot-password")]
         public async Task<ActionResult> ForgotPassword(
-            [FromBody] ForgotPasswordRequest request, 
+            [FromBody] ForgotPasswordRequest request,
             CancellationToken cancellationToken)
         {
             var command = new ForgotPasswordCommand(request.Email);
@@ -80,6 +80,14 @@ namespace WebAPI.Controllers
             await _mediatR.Send(command, cancellationToken);
 
             return NoContent();
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
+        {
+            var command = new RefreshTokenCommand(request.RefreshToken);
+            var result = await _mediatR.Send(command, cancellationToken);
+            return Ok(result);
         }
     }
 }

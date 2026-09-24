@@ -38,6 +38,9 @@ namespace Infrastructure
             services.AddScoped<IOrderWriteRepository, OrderWriteRepository>();
             services.AddScoped<IOrderReadRepository, OrderReadRepository>();
             services.AddScoped<IDashboardReadRepository, DashboardReadRepository>();
+            services.AddScoped<IRefreshTokenWriteRepository, RefreshTokenWriteRepository>();
+            services.AddScoped<IRefreshTokenReadRepository, RefreshTokenReadRepository>();
+            services.AddScoped<IRefreshTokenCleanupRepository, RefreshTokenCleanupRepository>();
             
 
             // unit of work
@@ -80,6 +83,7 @@ namespace Infrastructure
 
             // Background services
             services.AddHostedService<PasswordResetTokenCleanupService>();
+            services.AddHostedService<RefreshTokenCleanupService>();
 
 
             // services

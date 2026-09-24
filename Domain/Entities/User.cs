@@ -15,6 +15,12 @@ namespace Domain.Entities
         public string? RestoreCodeHash { get; private set; }
         public DateTime? RestoreCodeExpiresAt { get; private set; }
 
+        // refresh token
+        private readonly List<RefreshToken> _refreshTokens = new();
+        public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
+
+
+
         private User(
             EmailVo email,
             Role role,
@@ -34,7 +40,7 @@ namespace Domain.Entities
             user.RaiseEvent(new RegisteredUserDomainEvent(user.Id, user.Email.Value));
             return user;
         }
-
+        
 
         public void UpdatePassword(PasswordVo newPassword)
         {
