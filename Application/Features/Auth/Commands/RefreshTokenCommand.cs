@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public sealed record LoginCommand(string Email, string Password) : IRequest<TokenResponse>;
+    public sealed record RefreshTokenCommand(string RefreshToken): IRequest<TokenResponse>;
 }
