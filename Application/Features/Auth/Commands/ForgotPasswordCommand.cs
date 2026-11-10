@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public sealed record ForgotPasswordCommand(string Email):IRequest;
+    public sealed record ForgotPasswordCommand(string Email):IRequest<Result>;
 }

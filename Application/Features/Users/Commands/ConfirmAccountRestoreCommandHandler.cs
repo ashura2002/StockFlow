@@ -1,4 +1,6 @@
 ﻿
+using Application.Common.Errors;
+using Application.Common.Results;
 using Application.Interfaces;
 using Domain.Exceptions;
 using Domain.ValueObjects;
@@ -6,7 +8,7 @@ using MediatR;
 
 namespace Application.Features.Users.Commands
 {
-    public sealed class ConfirmAccountRestoreCommandHandler : IRequestHandler<ConfirmAccountRestoreCommand>
+    public sealed class ConfirmAccountRestoreCommandHandler : IRequestHandler<ConfirmAccountRestoreCommand, Result>
     {
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -22,12 +24,14 @@ namespace Application.Features.Users.Commands
             _tokenHasherService = tokenHasherService;
         }
 
-        public async Task Handle(ConfirmAccountRestoreCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(ConfirmAccountRestoreCommand request, CancellationToken cancellationToken)
         {
             var email = EmailVo.Create(request.Email);
 
-            var user = await _userWriteRepository.GetDeletedUserByEmailAsync(email.Value, cancellationToken) ??
-                throw new DomainNotFoundException("User not found.");
+            var user = await _userWriteRepository.GetDeletedUserByEmailAsync(email.Value, cancellationToken);
+
+            if (user is null)
+                return Result.Failure(UserErrors.UserNotFound);
 
             var codeHash = _tokenHasherService.Hash(request.VerificationCode);
 
@@ -35,6 +39,8 @@ namespace Application.Features.Users.Commands
             user.RestoreAccount();
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using MediatR;
 
 namespace Application.Features.Products.Commands
@@ -8,5 +9,5 @@ namespace Application.Features.Products.Commands
         Stream Stream,
         string FileName,
         string ContentType,
-        long FileSize) : IRequest<UploadedImage>;
+        long FileSize) : IRequest<ResultWithValue<UploadedImage>>;
 }

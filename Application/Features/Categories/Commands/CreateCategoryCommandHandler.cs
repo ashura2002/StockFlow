@@ -1,12 +1,13 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using Domain.Entities;
-using Domain.Exceptions;
 using Domain.ValueObjects;
 using MediatR;
 
 namespace Application.Features.Categories.Commands
 {
-    public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Guid>
+    public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, ResultWithValue<Guid>>
     {
         private readonly ICategoryWriteRepository _categoryWriteRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
@@ -22,20 +23,20 @@ namespace Application.Features.Categories.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<Guid>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             var categoryNameVo = CategoryNameVo.Create(request.CategoryName);
 
             if (await _categoryReadRepository.IsCategoryNameExistAsync(
-                request.CategoryName, 
-                null, 
+                request.CategoryName,
+                null,
                 cancellationToken))
-                throw new DomainConflictException("Category name already existed.");
+                return ResultWithValue<Guid>.Failure(CategoryErrors.CategoryNameExisted);
 
             var category = Category.Create(categoryNameVo, request.Descriptions);
             _categoryWriteRepository.Add(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return category.Id;
+            return ResultWithValue<Guid>.Success(category.Id);
         }
     }
 }

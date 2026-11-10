@@ -1,11 +1,12 @@
-﻿using Application.Interfaces;
-using Domain.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using Domain.ValueObjects;
 using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public sealed class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
+    public sealed class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result>
     {
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly IPasswordService _passwordService;
@@ -27,20 +28,28 @@ namespace Application.Features.Auth.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
         {
             // hash with SHA-256
             var tokenHash = _passwordResetTokenHasherService.Hash(request.RawToken);
 
-            // Return without revealing whether the reset token exists.
-            var resetToken = await _passwordResetTokenRepository.GetByTokenHashAsync(tokenHash, cancellationToken) ?? 
-                throw new DomainRuleViolationException("Invalid or expired password reset token.");
+            // Use a generic error to avoid revealing the token's specific state
+            var resetToken = await _passwordResetTokenRepository.GetByTokenHashAsync(tokenHash, cancellationToken);
 
-            if (resetToken.IsUsed || resetToken.IsExpired)
-                throw new DomainRuleViolationException("Invalid or expired password reset token.");
+            if (resetToken is null ||
+                resetToken.IsUsed ||
+                resetToken.IsExpired)
+            {
+                return Result.Failure(
+                    AuthErrors.InvalidPasswordResetToken);
+            }
 
             var user = await _userWriteRepository.GetUserByIdAsync(resetToken.UserId, cancellationToken);
-            if (user is null) return;
+            if (user is null)
+            {
+                return Result.Failure(  
+                    AuthErrors.InvalidPasswordResetToken);
+            }
 
             var newPassword = PasswordVo.Create(request.NewPassword);
 
@@ -51,6 +60,8 @@ namespace Application.Features.Auth.Commands
             resetToken.MarkAsUsed();
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

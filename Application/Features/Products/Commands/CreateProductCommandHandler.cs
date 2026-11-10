@@ -1,4 +1,6 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Exceptions;
@@ -7,7 +9,7 @@ using MediatR;
 
 namespace Application.Features.Products.Commands
 {
-    public sealed class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Guid>
+    public sealed class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ResultWithValue<Guid>>
     {
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IProductReadRepository _productReadRepository;
@@ -29,32 +31,35 @@ namespace Application.Features.Products.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var productName = ProductNameVo.Create(request.ProductName);
 
-            if (!await _categoryReadRepository.IsCategoryExistAsync(request.CategoryId, cancellationToken))
-                throw new DomainNotFoundException("Category not found.");
+            var isCategoryExist = await _categoryReadRepository.IsCategoryExistAsync(request.CategoryId, cancellationToken);
+            if (!isCategoryExist)
+                return ResultWithValue<Guid>.Failure(CategoryErrors.CategoryNotFound);
 
-            if (!await _supplierReadRepository.IsSupplierExistAsync(request.SupplierId, cancellationToken))
-                throw new DomainNotFoundException("Supplier not found.");
+            var isSupplierExist = await _supplierReadRepository.IsSupplierExistAsync(request.SupplierId, cancellationToken);
+            if (!isSupplierExist)
+                return ResultWithValue<Guid>.Failure(SupplierErrors.SupplierNotFound);
 
-            if (await _productReadRepository.IsProductNameExistAsync(productName.Value, null, cancellationToken))
-                throw new DomainConflictException("Product name is already existed.");
+            var isProductNameExist = await _productReadRepository.IsProductNameExistAsync(productName.Value, null, cancellationToken);
+            if (isProductNameExist)
+                return ResultWithValue<Guid>.Failure(ProductErrors.ProductNameAlreadyExisted);
 
 
             var product = Product.Create(
-                productName, 
+                productName,
                 request.Price,
-                request.Stock, 
-                request.CategoryId, 
+                request.Stock,
+                request.CategoryId,
                 request.SupplierId,
                 request.ProductDescriptions);
 
             _productWriteRepository.Add(product);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return product.Id;
+            return ResultWithValue<Guid>.Success(product.Id);
         }
     }
 }

@@ -1,10 +1,11 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using Domain.Enums;
-using Domain.Exceptions;
 using MediatR;
 namespace Application.Features.Orders.Commands
 {
-    public sealed class CancelOrderByAdminCommandHandler : IRequestHandler<CancelOrderByAdminCommand>
+    public sealed class CancelOrderByAdminCommandHandler : IRequestHandler<CancelOrderByAdminCommand, Result>
     {
         private readonly IOrderWriteRepository _orderWriteRepository;
         private readonly IProductWriteRepository _productWriteRepository;
@@ -20,23 +21,26 @@ namespace Application.Features.Orders.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(CancelOrderByAdminCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CancelOrderByAdminCommand request, CancellationToken cancellationToken)
         {
-            var order = await _orderWriteRepository.GetOrderByIdAsync(request.OrderId, cancellationToken) ??
-                throw new DomainNotFoundException("Order not found.");
+            var order = await _orderWriteRepository.GetOrderByIdAsync(request.OrderId, cancellationToken);
+            if (order is null)
+                return Result.Failure(OrderErrors.OrderNotFound);
 
             var isOrderCancel = order.CancelOrder(OrderCancellationSource.Admin);
-            if (!isOrderCancel) return;
+            if (!isOrderCancel) return Result.Success();
 
             foreach (var item in order.OrderItems)
             {
-                var product = await _productWriteRepository.GetProductByIdAsync(item.ProductId, cancellationToken) ??
-                   throw new DomainNotFoundException("Product not found");
+                var product = await _productWriteRepository.GetProductByIdAsync(item.ProductId, cancellationToken);
+                if (product is null)
+                    return Result.Failure(ProductErrors.ProductNotFound);
 
                 product.IncreaseStock(item.Quantity);
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return Result.Success();
         }
     }
 }

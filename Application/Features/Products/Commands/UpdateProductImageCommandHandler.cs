@@ -1,7 +1,7 @@
-﻿using Application.Dtos;
-using Application.Features.Profiles.Commands;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Dtos;
 using Application.Interfaces;
-using Domain.Entities;
 using Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Products.Commands
 {
-    public sealed class UpdateProductImageCommandHandler : IRequestHandler<UpdateProductImageCommand, UploadedImage>
+    public sealed class UpdateProductImageCommandHandler : IRequestHandler<UpdateProductImageCommand, ResultWithValue<UploadedImage>>
     {
         private readonly IImageStorage _imageStorage;
         private readonly IProductWriteRepository _productWriteRepository;
@@ -28,12 +28,13 @@ namespace Application.Features.Products.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<UploadedImage> Handle(UpdateProductImageCommand request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<UploadedImage>> Handle(UpdateProductImageCommand request, CancellationToken cancellationToken)
         {
             ValidateFile(request);
 
-            var product = await _productWriteRepository.GetProductByIdAsync(request.ProductId, cancellationToken) ??
-                throw new DomainNotFoundException("Product not found");
+            var product = await _productWriteRepository.GetProductByIdAsync(request.ProductId, cancellationToken);
+            if (product is null)
+                return ResultWithValue<UploadedImage>.Failure(ProductErrors.ProductNotFound);
 
             var oldProductImagePublicId = product.ProductImagePublicId;
 
@@ -54,9 +55,9 @@ namespace Application.Features.Products.Commands
 
 
             await DeleteOldProductPictureAsync(oldProductImagePublicId, cancellationToken);
-            return newProductImage;
+            return ResultWithValue<UploadedImage>.Success(newProductImage);
         }
-            // helpers
+        // helpers
         private async Task RollbackUploadedImageAsync(string publicId, Exception exception, CancellationToken cancellationToken)
         {
             try
@@ -97,5 +98,5 @@ namespace Application.Features.Products.Commands
             if (!allowedTypes.Contains(request.ContentType))
                 throw new DomainRuleViolationException("Only JPEG, PNG, and WEBP images are allowed.");
         }
-    } 
+    }
 }

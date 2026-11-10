@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
+using WebAPI.Extensions;
 
 namespace WebAPI.Controllers
 {
@@ -25,7 +26,7 @@ namespace WebAPI.Controllers
         {
             var query = new GetDashboardQuery();
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
     }
 }

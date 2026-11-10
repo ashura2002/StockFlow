@@ -1,34 +1,55 @@
+
 services:
+  db:
+    image: postgres:17-alpine
+    container_name: stockflow-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USERNAME:?Set POSTGRES_USERNAME in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - stockflow-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   stockflow-api:
-
-    image: stockflow:latest
-
-    container_name: stockflow-api
-
-    restart: always
-
     build:
-
       context: .
-
       dockerfile: Dockerfile
-
+    restart: unless-stopped
     ports:
-
-      - "8080:8080"
-
+       - "8080:8080"
     environment:
-
       ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
 
-      ConnectionStrings__DefaultConnection: ${ConnectionStrings__DefaultConnection}
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USERNAME};Password=${POSTGRES_PASSWORD}"
 
-      Jwt__Key: ${Jwt__Key}
-
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in .env}
       Jwt__Issuer: StockFlow
+      Jwt__Audience: stockFlowUsers
+      Jwt__ExpiryInHours: "24"
 
-      Jwt__Audience: StockFlowUsers
+      SeededUser__Email: ${SEEDED_USER_EMAIL:?Set SEEDED_USER_EMAIL in .env}
+      SeededUser__Password: ${SEEDED_USER_PASSWORD:?Set SEEDED_USER_PASSWORD in .env}
 
-      SeededUser__Email: ${SeededUser__Email}
-      SeededUser__Password: ${SeededUser__Password}
+      SENTRY__DSN: ${SENTRY_DSN}
+      Cloudinary__ApiKey: ${CLOUDINARY_API_KEY}
+      Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET}
+      Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME}
+      Frontend__BaseUrl: ${FRONTEND_BASE_URL}
+      Email__ApiKey: ${EMAIL_API_KEY}
+      Email__From: ${EMAIL_FROM}
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  stockflow-postgres-data:

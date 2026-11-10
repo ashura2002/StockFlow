@@ -1,7 +1,8 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using MediatR;
 
 namespace Application.Features.Categories.Queries
 {
-    public sealed record GetAllCategoriesQuery() : IRequest<IReadOnlyCollection<CategoryResponseDto>>;
+    public sealed record GetAllCategoriesQuery() : IRequest<ResultWithValue<IReadOnlyCollection<CategoryResponseDto>>>;
 }

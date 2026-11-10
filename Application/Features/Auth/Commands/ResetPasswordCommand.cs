@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public sealed  record ResetPasswordCommand(string RawToken, string NewPassword) : IRequest;
+    public sealed  record ResetPasswordCommand(string RawToken, string NewPassword) : IRequest<Result>;
 }

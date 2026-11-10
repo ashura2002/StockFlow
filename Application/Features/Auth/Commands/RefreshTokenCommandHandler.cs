@@ -1,12 +1,13 @@
-﻿using Application.Features.Auth.Responses;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Features.Auth.Responses;
 using Application.Interfaces;
 using Domain.Entities;
-using Domain.Exceptions;
 using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, TokenResponse>
+    public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, ResultWithValue<TokenResponse>>
     {
         private readonly IRefreshTokenReadRepository _refreshTokenReadRepository;
         private readonly IRefreshTokenWriteRepository _refreshTokenWriteRepository;
@@ -29,18 +30,28 @@ namespace Application.Features.Auth.Commands
         }
 
 
-        public async Task<TokenResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<TokenResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
         {
             var tokenHash = _tokenHasherService.Hash(request.RefreshToken);
 
-            var refreshToken = await _refreshTokenReadRepository.GetByTokenHashAsync(tokenHash, cancellationToken)??
-                throw new DomainNotFoundException("Token not found.");
+            var refreshToken = await _refreshTokenReadRepository.GetByTokenHashAsync(tokenHash, cancellationToken);
+            if (refreshToken is null)
+            {
+                return ResultWithValue<TokenResponse>.Failure(
+                    AuthErrors.RefreshTokenInvalid);
+            }
 
             if (!refreshToken.IsActive())
-                throw new DomainUnauthorizedException("Refresh token is expired or revoked.");
+            {
+                return ResultWithValue<TokenResponse>.Failure(AuthErrors.RefreshTokenInvalid);
+            }
 
-            var user = refreshToken.User??
-                throw new DomainNotFoundException("User not found.");
+            if (refreshToken.User is null)
+            {
+                return ResultWithValue<TokenResponse>.Failure(AuthErrors.RefreshTokenInvalid);
+            }
+
+            var user = refreshToken.User;
 
             var accessToken = _jwtService.GenerateAccessToken(user);
             var rawRefreshToken = _jwtService.GenerateRefreshToken();
@@ -53,7 +64,8 @@ namespace Application.Features.Auth.Commands
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return new TokenResponse(accessToken, rawRefreshToken);
+            var result = new TokenResponse(accessToken, rawRefreshToken);
+            return ResultWithValue<TokenResponse>.Success(result);
         }
     }
 }

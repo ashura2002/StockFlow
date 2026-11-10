@@ -1,11 +1,12 @@
-﻿using Application.Interfaces;
-using Domain.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Profiles.Commands
 {
-    public sealed class DeleteProfileCommandHandler : IRequestHandler<DeleteProfileCommand>
+    public sealed class DeleteProfileCommandHandler : IRequestHandler<DeleteProfileCommand, Result>
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserWriteRepository _userWriteRepository;
@@ -28,11 +29,12 @@ namespace Application.Features.Profiles.Commands
         }
 
 
-        public async Task Handle(DeleteProfileCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteProfileCommand request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
-            var user = await _userWriteRepository.GetUserByIdWithProfileAsync(currentUserId, cancellationToken) ??
-                throw new DomainNotFoundException("User not found");
+            var user = await _userWriteRepository.GetUserByIdWithProfileAsync(currentUserId, cancellationToken);
+            if (user is null)
+                return Result.Failure(UserErrors.UserNotFound);
 
             user.DeleteProfile();
 
@@ -54,6 +56,8 @@ namespace Application.Features.Profiles.Commands
                         user.Profile.ProfilePicturePublicId);
                 }
             }
+
+            return Result.Success();
         }
     }
 }

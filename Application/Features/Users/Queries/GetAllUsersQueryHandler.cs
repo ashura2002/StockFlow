@@ -1,10 +1,11 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Users.Queries
 {
-    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IReadOnlyCollection<UserResponseDto>>
+    public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, ResultWithValue<IReadOnlyCollection<UserResponseDto>>>
     {
         private readonly IUserReadRepository _userReadRepository;
 
@@ -13,12 +14,13 @@ namespace Application.Features.Users.Queries
             _userReadRepository = userReadRepository;
         }
 
-        public async Task<IReadOnlyCollection<UserResponseDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<IReadOnlyCollection<UserResponseDto>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
             var users = await _userReadRepository.GetAllActiveUsersAsync(
                 request.Page, 
                 request.PageSize, cancellationToken);
-            return users;
+
+            return ResultWithValue<IReadOnlyCollection<UserResponseDto>>.Success(users);
         }
     }
 }

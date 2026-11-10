@@ -1,10 +1,11 @@
-﻿using Application.Interfaces;
-using Domain.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Notifications.Commands
 {
-    public sealed class DeleteNotificationByIdCommandHandler : IRequestHandler<DeleteNotificationByIdCommand>
+    public sealed class DeleteNotificationByIdCommandHandler : IRequestHandler<DeleteNotificationByIdCommand, Result>
     {
         private readonly INotificationWriteRepository _notificationWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -20,13 +21,16 @@ namespace Application.Features.Notifications.Commands
             _currentUserService = currentUserService;
         }
 
-        public async Task Handle(DeleteNotificationByIdCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteNotificationByIdCommand request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
-            var notification = await _notificationWriteRepository.GetNotificationByIdAsync(request.NotificationId, currentUserId, cancellationToken) ??
-                throw new DomainNotFoundException("Notification not found");
+            var notification = await _notificationWriteRepository.GetNotificationByIdAsync(request.NotificationId, currentUserId, cancellationToken);
+            if (notification is null)
+                return Result.Failure(NotificationErrors.NotificationNotFound);
+
             _notificationWriteRepository.Remove(notification);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return Result.Success();
         }
     }
 }

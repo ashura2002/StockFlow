@@ -1,10 +1,11 @@
-﻿using Application.Interfaces;
-using Domain.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Orders.Commands
 {
-    public sealed class ConfirmOrderCommandHandler : IRequestHandler<ConfirmOrderCommand>
+    public sealed class ConfirmOrderCommandHandler : IRequestHandler<ConfirmOrderCommand, Result>
     {
         private readonly IOrderWriteRepository _orderWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -17,13 +18,16 @@ namespace Application.Features.Orders.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(ConfirmOrderCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(ConfirmOrderCommand request, CancellationToken cancellationToken)
         {
-            var order = await _orderWriteRepository.GetOrderByIdAsync(request.OrderId, cancellationToken) ??
-                throw new DomainNotFoundException("Order not found");
+            var order = await _orderWriteRepository.GetOrderByIdAsync(request.OrderId, cancellationToken);
+            if (order is null)
+                return Result.Failure(OrderErrors.OrderNotFound);
 
             order.ConfirmOrder();
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

@@ -1,11 +1,12 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Dtos;
 using Application.Interfaces;
-using Domain.Exceptions;
 using MediatR;
 
 namespace Application.Features.Orders.Queries
 {
-    public sealed class GetMyOrderByIdQueryHandler : IRequestHandler<GetMyOrderByIdQuery, CustomerOrderResponseDto>
+    public sealed class GetMyOrderByIdQueryHandler : IRequestHandler<GetMyOrderByIdQuery, ResultWithValue<CustomerOrderResponseDto>>
     {
         private readonly IOrderReadRepository _orderReadRepository;
         private readonly ICurrentUserService _currentUserService;
@@ -17,11 +18,14 @@ namespace Application.Features.Orders.Queries
             _currentUserService = currentUserService;
         }
 
-        public async Task<CustomerOrderResponseDto> Handle(GetMyOrderByIdQuery request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<CustomerOrderResponseDto>> Handle(GetMyOrderByIdQuery request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
-            return await _orderReadRepository.GetMyOrderByIdAsync(request.OrderId, currentUserId, cancellationToken) ??
-                 throw new DomainNotFoundException("Order not found.");
+            var order = await _orderReadRepository.GetMyOrderByIdAsync(request.OrderId, currentUserId, cancellationToken);
+            if (order is null)
+                return ResultWithValue<CustomerOrderResponseDto>.Failure(OrderErrors.OrderNotFound);
+
+            return ResultWithValue<CustomerOrderResponseDto>.Success(order);
         }
     }
 }

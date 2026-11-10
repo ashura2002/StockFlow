@@ -1,9 +1,10 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Users.Commands
 {
     public sealed record CreateCustomerCommand(
         string Email,  
         string Password,
-        string ConfirmPassword):IRequest<Guid>;
+        string ConfirmPassword):IRequest<ResultWithValue<Guid>>;
 }

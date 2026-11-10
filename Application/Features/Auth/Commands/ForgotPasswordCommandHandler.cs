@@ -1,10 +1,11 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Results;
+using Application.Interfaces;
 using Domain.Entities;
 using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand>
+    public sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand, Result>
     {
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly IPasswordResetTokenRepository _resetTokenRepository;
@@ -32,11 +33,12 @@ namespace Application.Features.Auth.Commands
             _frontendUrlService = frontendUrlService;
         }
 
-        public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
             var user = await _userWriteRepository.GetUserByEmailAsync(request.Email, cancellationToken);
 
-            if (user is null) return;
+            if (user is null) 
+                return Result.Success();
 
             // Generate random token
             var rawToken = _tokenGenerator.Generate();
@@ -62,6 +64,8 @@ namespace Application.Features.Auth.Commands
                 "Reset your password",
                  $"Click this link to reset your password: {resetUrl}",
                 cancellationToken);
+
+            return Result.Success();
         }
     }
 }

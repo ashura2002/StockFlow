@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
+using WebAPI.Extensions;
 using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
@@ -25,12 +26,12 @@ namespace WebAPI.Controllers
         [HttpPost]
         [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult<Guid>> CreateCategory(
-            [FromBody] CreateCategoryRequest request, 
+            [FromBody] CreateCategoryRequest request,
             CancellationToken cancellationToken)
         {
             var command = new CreateCategoryCommand(request.CategoryName, request.Description);
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [HttpGet]
@@ -40,7 +41,7 @@ namespace WebAPI.Controllers
         {
             var query = new GetAllCategoriesQuery();
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [HttpGet("{categoryId:guid}")]
@@ -49,23 +50,23 @@ namespace WebAPI.Controllers
             CancellationToken cancellationToken)
         {
             var query = new GetCategoryByIdWithProductsQuery(categoryId);
-            var result = await _mediator.Send(query,cancellationToken);
-            return Ok(result);
-        } 
+            var result = await _mediator.Send(query, cancellationToken);
+            return this.ToActionResult(result);
+        }
 
         [HttpPatch("{categoryId:guid}")]
         [Authorize(Roles = RolesConstant.Admin)]
         public async Task<ActionResult> UpdateCategory(
             Guid categoryId, [
-            FromBody] UpdateCategoryRequest request, 
+            FromBody] UpdateCategoryRequest request,
             CancellationToken cancellationToken)
         {
             var command = new UpdateCategoryCommand(
-                categoryId, 
+                categoryId,
                 request.CategoryName,
                 request.Description);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpDelete("{categoryId:guid}")]
@@ -73,8 +74,8 @@ namespace WebAPI.Controllers
         public async Task<ActionResult> DeleteCategory(Guid categoryId, CancellationToken cancellationToken)
         {
             var command = new DeleteCategoryCommand(categoryId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
     }

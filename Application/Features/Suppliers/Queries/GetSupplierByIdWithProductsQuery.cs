@@ -1,7 +1,8 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using MediatR;
 
 namespace Application.Features.Suppliers.Queries
 {
-    public sealed record GetSupplierByIdWithProductsQuery(Guid SupplierId):IRequest<SupplierWithProductsResponseDto>;
+    public sealed record GetSupplierByIdWithProductsQuery(Guid SupplierId) : IRequest<ResultWithValue<SupplierWithProductsResponseDto>>;
 }

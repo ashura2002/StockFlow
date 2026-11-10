@@ -1,11 +1,12 @@
-﻿using Application.Interfaces;
-using Domain.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using Domain.ValueObjects;
 using MediatR;
 
 namespace Application.Features.Categories.Commands
 {
-    public sealed class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand>
+    public sealed class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, Result>
     {
         private readonly ICategoryWriteRepository _categoryWriteRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
@@ -23,19 +24,24 @@ namespace Application.Features.Categories.Commands
             _unitOfWork = unitOfWork;
             _cacheService = cacheService;
         }
-        public async Task Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
             var categoryNameVo = CategoryNameVo.Create(request.CategoryName);
-            var category = await _categoryWriteRepository.GetCategoryByIdAsync(request.CategoryId, cancellationToken) ??
-                throw new DomainNotFoundException("Category not found");
+
+            var category = await _categoryWriteRepository.GetCategoryByIdAsync(request.CategoryId, cancellationToken);
+            if(category is null)
+            return Result.Failure(CategoryErrors.CategoryNotFound);
+
             if (await _categoryReadRepository.IsCategoryNameExistAsync(categoryNameVo.Value, category.Id, cancellationToken))
-                throw new DomainConflictException("Category name is already existed.");
+                return Result.Failure(CategoryErrors.CategoryNameExisted);
 
             category.UpdateCategoryName(categoryNameVo);
             category.UpdateDescription(request.Description);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             _cacheService.RemoveCacheResource($"category:{request.CategoryId}");
+
+            return Result.Success();
         }
     }
 }

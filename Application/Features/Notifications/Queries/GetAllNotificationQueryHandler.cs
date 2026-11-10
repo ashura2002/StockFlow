@@ -1,10 +1,11 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Notifications.Queries
 {
-    public sealed class GetAllNotificationQueryHandler : IRequestHandler<GetAllNotificationQuery, IReadOnlyCollection<NotificationResponseDto>>
+    public sealed class GetAllNotificationQueryHandler : IRequestHandler<GetAllNotificationQuery, ResultWithValue<IReadOnlyCollection<NotificationResponseDto>>>
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly INotificationReadRepository _notificationReadRepository;
@@ -15,10 +16,11 @@ namespace Application.Features.Notifications.Queries
             _notificationReadRepository = notificationReadRepository;
         }
 
-        public async Task<IReadOnlyCollection<NotificationResponseDto>> Handle(GetAllNotificationQuery request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<IReadOnlyCollection<NotificationResponseDto>>> Handle(GetAllNotificationQuery request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
-            return await _notificationReadRepository.GetAllNotificationsAsync(currentUserId, cancellationToken);
+            var result = await _notificationReadRepository.GetAllNotificationsAsync(currentUserId, cancellationToken);
+            return ResultWithValue<IReadOnlyCollection<NotificationResponseDto>>.Success(result);
         }
     }
 }

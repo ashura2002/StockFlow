@@ -1,4 +1,6 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Exceptions;
@@ -7,7 +9,7 @@ using MediatR;
 
 namespace Application.Features.Users.Commands
 {
-    public sealed class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, Guid>
+    public sealed class CreateCustomerCommandHandler : IRequestHandler<CreateCustomerCommand, ResultWithValue<Guid>>
     {
         private readonly IUserWriteRepository _userWrite;
         private readonly IUserReadRepository _userRead;
@@ -26,11 +28,13 @@ namespace Application.Features.Users.Commands
             _passwordService = passwordService;
         }
 
-        public async Task<Guid> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<Guid>> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
             var emailVo = EmailVo.Create(request.Email);
             if (await _userRead.IsEmailExistAsync(emailVo.Value, cancellationToken))
-                throw new DomainConflictException("Email already exists.");
+                return ResultWithValue<Guid>.Failure(UserErrors.EmailAlreadyInUsed);
+
+
             var passwordVo = PasswordVo.Create(request.Password);
             var hashPassword = _passwordService.HashPassword(passwordVo.Value);
 
@@ -38,7 +42,7 @@ namespace Application.Features.Users.Commands
 
             _userWrite.Add(user);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return user.Id;
+            return ResultWithValue<Guid>.Success(user.Id);
         }
     }
 }

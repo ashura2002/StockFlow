@@ -1,4 +1,5 @@
 ﻿
+using Application.Common.Results;
 using MediatR;
 
 namespace Application.Features.Profiles.Commands
@@ -7,5 +8,5 @@ namespace Application.Features.Profiles.Commands
         string FirstName, 
         string LastName, 
         DateOnly DateOfBirth, 
-        string Address) : IRequest<Guid>;
+        string Address) : IRequest<ResultWithValue<Guid>>;
 }

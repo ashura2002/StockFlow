@@ -1,10 +1,11 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Categories.Queries
 {
-    public sealed class GetAllCategoriesQueryhandler : IRequestHandler<GetAllCategoriesQuery, IReadOnlyCollection<CategoryResponseDto>>
+    public sealed class GetAllCategoriesQueryhandler : IRequestHandler<GetAllCategoriesQuery, ResultWithValue<IReadOnlyCollection<CategoryResponseDto>>>
     {
         private readonly ICategoryReadRepository _categoryReadRepository;
 
@@ -14,9 +15,10 @@ namespace Application.Features.Categories.Queries
             _categoryReadRepository = categoryReadRepository;
         }
 
-        public async Task<IReadOnlyCollection<CategoryResponseDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<IReadOnlyCollection<CategoryResponseDto>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
-            return await _categoryReadRepository.GetAllCategoriesAsync(cancellationToken);
+            var categories = await _categoryReadRepository.GetAllCategoriesAsync(cancellationToken);
+            return ResultWithValue<IReadOnlyCollection<CategoryResponseDto>>.Success(categories);
         }
     }
 }

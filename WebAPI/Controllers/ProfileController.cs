@@ -4,6 +4,7 @@ using Application.Features.Profiles.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Extensions;
 using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
@@ -32,15 +33,15 @@ namespace WebAPI.Controllers
                 request.Address);
 
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [HttpPatch]
         public async Task<ActionResult> UpdateProfile([FromBody] UpdateProfileRequest request, CancellationToken cancellationToken)
         {
             var command = new UpdateProfileCommand(request.FirstName, request.LastName, request.Address);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+           var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpGet("my-profile")]
@@ -48,7 +49,7 @@ namespace WebAPI.Controllers
         {
             var query = new GetProfileQuery();
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         // Upload profile picture
@@ -65,7 +66,7 @@ namespace WebAPI.Controllers
                     file.Length),
                 cancellationToken);
 
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
 
@@ -73,8 +74,8 @@ namespace WebAPI.Controllers
         public async Task<ActionResult> DeleteProfile(CancellationToken cancellationToken)
         {
             var command = new DeleteProfileCommand();
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
     }
 }

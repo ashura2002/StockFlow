@@ -17,23 +17,6 @@ namespace Infrastructure.Services
             return _memoryCache.Get<T>(key);
         }
 
-        public async Task<T?> GetOrCreateAsync<T>(string key, Func<Task<T?>> factory, TimeSpan expiration)
-        {
-            var cacheResource = _memoryCache.Get<T>(key);
-
-            if (cacheResource is not null)
-                return cacheResource;
-
-            var resourcesFromDatabase = await factory();
-            if (resourcesFromDatabase is not null)
-                _memoryCache.Set(
-                    key,
-                    resourcesFromDatabase,
-                    expiration);
-
-            return resourcesFromDatabase;
-        }
-
         public void RemoveCacheResource(string key)
         {
             _memoryCache.Remove(key);

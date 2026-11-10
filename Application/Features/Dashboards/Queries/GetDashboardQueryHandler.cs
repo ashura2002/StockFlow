@@ -1,10 +1,11 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Dashboards.Queries
 {
-    public sealed class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, DashboardResponseDto>
+    public sealed class GetDashboardQueryHandler : IRequestHandler<GetDashboardQuery, ResultWithValue<DashboardResponseDto>>
     {
         private readonly IDashboardReadRepository _dashboardReadRepository;
         public GetDashboardQueryHandler(IDashboardReadRepository dashboardReadRepository)
@@ -12,9 +13,10 @@ namespace Application.Features.Dashboards.Queries
             _dashboardReadRepository = dashboardReadRepository;
         }
 
-        public async Task<DashboardResponseDto> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<DashboardResponseDto>> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
         {
-            return await _dashboardReadRepository.GetDashboardAsync(cancellationToken);
+            var result =  await _dashboardReadRepository.GetDashboardAsync(cancellationToken);
+            return ResultWithValue<DashboardResponseDto>.Success(result);
         }
     }
 }

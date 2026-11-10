@@ -1,10 +1,11 @@
-﻿using Application.Interfaces;
-using Domain.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Categories.Commands
 {
-    public sealed class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand>
+    public sealed class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Result>
     {
         private readonly ICategoryWriteRepository _categoryWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -20,15 +21,17 @@ namespace Application.Features.Categories.Commands
             _cacheService = cacheService;
         }
 
-        public async Task Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
 
-            var category = await _categoryWriteRepository.GetCategoryByIdAsync(request.CategoryId, cancellationToken) ??
-                throw new DomainNotFoundException("Category not found");
+            var category = await _categoryWriteRepository.GetCategoryByIdAsync(request.CategoryId, cancellationToken);
+            if (category is null)
+                return Result.Failure(CategoryErrors.CategoryNotFound);
 
             _categoryWriteRepository.Remove(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             _cacheService.RemoveCacheResource($"category:{request.CategoryId}");
+            return Result.Success();
         }
     }
 }
