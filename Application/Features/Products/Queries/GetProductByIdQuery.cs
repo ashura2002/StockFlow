@@ -1,7 +1,8 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using MediatR;
 
 namespace Application.Features.Products.Queries
 {
-    public sealed record GetProductByIdQuery(Guid ProductId) : IRequest<ProductResponseDto>;
+    public sealed record GetProductByIdQuery(Guid ProductId) : IRequest<ResultWithValue<ProductResponseDto>>;
 }

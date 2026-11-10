@@ -1,10 +1,11 @@
-﻿using Application.Interfaces;
-using Domain.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Suppliers.Commands
 {
-    public sealed class DeleteSupplierCommandHandler : IRequestHandler<DeleteSupplierCommand>
+    public sealed class DeleteSupplierCommandHandler : IRequestHandler<DeleteSupplierCommand, Result>
     {
         private readonly ISupplierWriteRepository _supplierWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -17,13 +18,17 @@ namespace Application.Features.Suppliers.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(DeleteSupplierCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteSupplierCommand request, CancellationToken cancellationToken)
         {
-            var supplier = await _supplierWriteRepository.GetSupplierByIdAsync(request.SupplierId, cancellationToken) ??
-                throw new DomainNotFoundException("Supplier not found");
+            var supplier = await _supplierWriteRepository.GetSupplierByIdAsync(request.SupplierId, cancellationToken);
+            if (supplier is null)
+                return Result.Failure(SupplierErrors.SupplierNotFound);
+
 
             _supplierWriteRepository.Remove(supplier);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
+using WebAPI.Extensions;
 using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
@@ -34,7 +35,7 @@ namespace WebAPI.Controllers
                 request.Address);
 
             var result = await _mediator.Send(command, ct);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [HttpGet]
@@ -58,7 +59,7 @@ namespace WebAPI.Controllers
         {
             var query = new GetSupplierByIdWithProductsQuery(supplierId);
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
 
@@ -75,16 +76,16 @@ namespace WebAPI.Controllers
                 request.PhoneNumber,
                 request.Address);
 
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpDelete("{supplierId:guid}")]
         public async Task<ActionResult> DeleteSupplier(Guid supplierId, CancellationToken cancellationToken)
         {
             var command = new DeleteSupplierCommand(supplierId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
     }
 }

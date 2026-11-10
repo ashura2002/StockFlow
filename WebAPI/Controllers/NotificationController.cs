@@ -4,6 +4,7 @@ using Application.Features.Notifications.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Extensions;
 
 namespace WebAPI.Controllers
 {
@@ -19,21 +20,21 @@ namespace WebAPI.Controllers
             _mediator = mediator;
         }
 
-        
+
         [HttpPatch("{notificationId:guid}/read")]
         public async Task<ActionResult> MarkAsRead(Guid notificationId, CancellationToken cancellationToken)
         {
             var command = new MarkAsReadCommand(notificationId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpDelete("{notificationId:guid}")]
         public async Task<ActionResult> DeleteNotificationById(Guid notificationId, CancellationToken cancellationToken)
         {
             var command = new DeleteNotificationByIdCommand(notificationId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpGet]
@@ -41,7 +42,7 @@ namespace WebAPI.Controllers
         {
             var query = new GetAllNotificationQuery();
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
     }

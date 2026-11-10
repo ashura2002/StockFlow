@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Users.Commands
 {
-    public sealed record RequestAccountRestoreCommand(string Email) : IRequest;
+    public sealed record RequestAccountRestoreCommand(string Email) : IRequest<Result>;
 }

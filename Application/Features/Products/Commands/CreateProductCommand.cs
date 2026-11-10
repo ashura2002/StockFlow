@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Products.Commands
 {
@@ -8,5 +9,5 @@ namespace Application.Features.Products.Commands
         int Stock,
         Guid CategoryId,
         Guid SupplierId,
-        string? ProductDescriptions) : IRequest<Guid>;
+        string? ProductDescriptions) : IRequest<ResultWithValue<Guid>>;
 }

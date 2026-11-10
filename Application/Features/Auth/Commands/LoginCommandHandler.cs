@@ -1,13 +1,14 @@
-﻿using Application.Features.Auth.Responses;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Features.Auth.Responses;
 using Application.Interfaces;
 using Domain.Entities;
-using Domain.Exceptions;
 using MediatR;
 
 
 namespace Application.Features.Auth.Commands
 {
-    public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, TokenResponse>
+    public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, ResultWithValue<TokenResponse>>
     {
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly IPasswordService _passwordService;
@@ -33,14 +34,13 @@ namespace Application.Features.Auth.Commands
         }
 
 
-        public async Task<TokenResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<TokenResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             var user = await _userWriteRepository.GetUserByEmailAsync(request.Email, cancellationToken);
 
             if (user is null || !_passwordService.Verify(request.Password, user.Password.Value))
-            {
-                throw new DomainUnauthorizedException("Invalid email or password.");
-            }
+                return ResultWithValue<TokenResponse>.Failure(AuthErrors.InvalidCredentials);
+
             var accessToken = _jwtService.GenerateAccessToken(user);
             var rawRefreshToken = _jwtService.GenerateRefreshToken();
 
@@ -50,7 +50,8 @@ namespace Application.Features.Auth.Commands
             _refreshTokenWriteRepository.Add(refreshToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return new TokenResponse(accessToken, rawRefreshToken);
+            var result = new TokenResponse(accessToken, rawRefreshToken);
+            return ResultWithValue<TokenResponse>.Success(result);
         }
     }
 }

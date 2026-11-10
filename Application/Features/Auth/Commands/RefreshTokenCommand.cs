@@ -1,7 +1,8 @@
-﻿using Application.Features.Auth.Responses;
+﻿using Application.Common.Results;
+using Application.Features.Auth.Responses;
 using MediatR;
 
 namespace Application.Features.Auth.Commands
 {
-    public sealed record RefreshTokenCommand(string RefreshToken): IRequest<TokenResponse>;
+    public sealed record RefreshTokenCommand(string RefreshToken): IRequest<ResultWithValue<TokenResponse>>;
 }

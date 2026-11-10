@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
+using WebAPI.Extensions;
 using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
@@ -38,10 +39,7 @@ namespace WebAPI.Controllers
 
             var result = await _mediator.Send(command, cancellationToken);
 
-            return CreatedAtAction(
-                nameof(GetProductById),
-                new { productId = result },
-                result);
+            return this.ToActionResult(result);
         }
 
         [HttpGet]
@@ -63,7 +61,7 @@ namespace WebAPI.Controllers
         {
             var query = new GetProductByIdQuery(productId);
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [Authorize(Roles = RolesConstant.Admin)]
@@ -79,8 +77,8 @@ namespace WebAPI.Controllers
                 request.Price,
                 request.Stock,
                 request.Descriptions);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpDelete("{productId:guid}")]
@@ -90,8 +88,8 @@ namespace WebAPI.Controllers
             CancellationToken cancellationToken)
         {
             var command = new DeleteProductCommand(productId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+           var result =  await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpGet("search")]
@@ -137,7 +135,7 @@ namespace WebAPI.Controllers
                     file.Length),
                 cancellationToken);
 
-            return Ok(result);
+            return this.ToActionResult(result);
         }
     }
 }

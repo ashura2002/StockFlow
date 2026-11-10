@@ -1,4 +1,6 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using Domain.Exceptions;
 using Domain.ValueObjects;
 using MediatR;
@@ -6,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace Application.Features.Users.Commands
 {
-    public sealed class RequestAccountRestoreCommandHandler : IRequestHandler<RequestAccountRestoreCommand>
+    public sealed class RequestAccountRestoreCommandHandler : IRequestHandler<RequestAccountRestoreCommand, Result>
     {
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -25,12 +27,13 @@ namespace Application.Features.Users.Commands
             _tokenHasherService = tokenHasherService;
         }
 
-        public async Task Handle(RequestAccountRestoreCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(RequestAccountRestoreCommand request, CancellationToken cancellationToken)
         {
             var email = EmailVo.Create(request.Email);
 
-            var user = await _userWriteRepository.GetDeletedUserByEmailAsync(email.Value, cancellationToken) ??
-                throw new DomainNotFoundException("User not found.");
+            var user = await _userWriteRepository.GetDeletedUserByEmailAsync(email.Value, cancellationToken);
+            if (user is null)
+                return Result.Failure(UserErrors.UserNotFound);
 
             var code = RandomNumberGenerator
                 .GetInt32(100000, 1000000)
@@ -49,6 +52,8 @@ namespace Application.Features.Users.Commands
                  "This code will expire in 5 minutes. " +
                  "If you did not request to restore your account, please ignore this email.",
                  cancellationToken);
+
+            return Result.Success();
         }
     }
 }

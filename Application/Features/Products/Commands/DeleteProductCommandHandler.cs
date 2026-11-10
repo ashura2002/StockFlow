@@ -1,10 +1,11 @@
-﻿using Application.Interfaces;
-using Domain.Exceptions;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using MediatR;
 
 namespace Application.Features.Products.Commands
 {
-    public sealed class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand>
+    public sealed class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand, Result>
     {
         private readonly IProductWriteRepository _productWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -20,17 +21,20 @@ namespace Application.Features.Products.Commands
             _cacheService = cacheService;
         }
 
-        public async Task Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
 
-            var product = await _productWriteRepository.GetProductByIdAsync(request.ProductId, cancellationToken) ??
-                throw new DomainNotFoundException("Product not found.");
+            var product = await _productWriteRepository.GetProductByIdAsync(request.ProductId, cancellationToken);
+            if (product is null)
+                return Result.Failure(ProductErrors.ProductNotFound);
 
             product.SoftDelete();
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _cacheService.RemoveCacheResource($"product:{request.ProductId}");
+
+            return Result.Success();
         }
     }
 }

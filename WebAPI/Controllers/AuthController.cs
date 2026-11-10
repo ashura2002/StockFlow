@@ -1,8 +1,10 @@
 ﻿using Application.Features.Auth.Commands;
+using Application.Features.Auth.Responses;
 using Application.Features.Users.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebAPI.Extensions;
 using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
@@ -20,22 +22,27 @@ namespace WebAPI.Controllers
 
         [HttpPost("login")]
         [EnableRateLimiting("LoginPolicy")]
-        public async Task<ActionResult<LoginResponse>> Login(
+        public async Task<ActionResult<TokenResponse>> Login(
             [FromBody] LoginRequest request,
             CancellationToken cancellationToken)
         {
             var command = new LoginCommand(request.Email, request.Password);
             var result = await _mediatR.Send(command, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [HttpPost("forgot-password")]
         public async Task<ActionResult> ForgotPassword(
-            [FromBody] ForgotPasswordRequest request,
-            CancellationToken cancellationToken)
+       [FromBody] ForgotPasswordRequest request,
+       CancellationToken cancellationToken)
         {
             var command = new ForgotPasswordCommand(request.Email);
-            await _mediatR.Send(command, cancellationToken);
+
+            var result = await _mediatR.Send(command, cancellationToken);
+
+            if (result.IsFailue)
+                return this.ToActionResult(result);
+
             return Ok(new
             {
                 message = "If the email is registered, a password reset email has been sent."
@@ -44,11 +51,20 @@ namespace WebAPI.Controllers
 
         [HttpPost("reset-password")]
         public async Task<ActionResult> ResetPassword(
-            [FromBody] ResetPasswordRequest request,
-            CancellationToken cancellationToken)
+       [FromBody] ResetPasswordRequest request,
+       CancellationToken cancellationToken)
         {
-            var command = new ResetPasswordCommand(request.RawToken, request.NewPassword);
-            await _mediatR.Send(command, cancellationToken);
+            var command = new ResetPasswordCommand(
+                request.RawToken,
+                request.NewPassword);
+
+            var result = await _mediatR.Send(command, cancellationToken);
+
+            if (result.IsFailue)
+            {
+                return this.ToActionResult(result);
+            }
+
             return Ok(new
             {
                 message = "Password has been reset successfully."
@@ -63,9 +79,9 @@ namespace WebAPI.Controllers
         {
             var command = new RequestAccountRestoreCommand(request.Email);
 
-            await _mediatR.Send(command, cancellationToken);
+            var result = await _mediatR.Send(command, cancellationToken);
 
-            return NoContent();
+            return this.ToActionResult(result);
         }
 
         [HttpPost("account-restore/confirm")]
@@ -77,17 +93,17 @@ namespace WebAPI.Controllers
                 request.Email,
                 request.VerificationCode);
 
-            await _mediatR.Send(command, cancellationToken);
+            var result = await _mediatR.Send(command, cancellationToken);
 
-            return NoContent();
+            return this.ToActionResult(result);
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<TokenResponse>> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {
             var command = new RefreshTokenCommand(request.RefreshToken);
             var result = await _mediatR.Send(command, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
     }
 }

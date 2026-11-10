@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Notifications.Commands
 {
-    public sealed record DeleteNotificationByIdCommand(Guid NotificationId) : IRequest;
+    public sealed record DeleteNotificationByIdCommand(Guid NotificationId) : IRequest<Result>;
 }

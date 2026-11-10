@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Products.Commands
 {
@@ -7,5 +8,5 @@ namespace Application.Features.Products.Commands
         string ProductName,
         decimal Price,
         int Stock,
-        string? Descriptions) : IRequest;
+        string? Descriptions) : IRequest<Result>;
 }

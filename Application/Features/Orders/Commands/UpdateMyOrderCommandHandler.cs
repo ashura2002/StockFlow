@@ -1,11 +1,14 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Interfaces;
 using Domain.Exceptions;
 using MediatR;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace Application.Features.Orders.Commands
 {
-    public sealed class UpdateMyOrderCommandHandler : IRequestHandler<UpdateMyOrderCommand>
+    public sealed class UpdateMyOrderCommandHandler : IRequestHandler<UpdateMyOrderCommand, Result>
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IOrderWriteRepository _orderWriteRepository;
@@ -24,13 +27,14 @@ namespace Application.Features.Orders.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task Handle(UpdateMyOrderCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateMyOrderCommand request, CancellationToken cancellationToken)
         {
-            var order = await _orderWriteRepository.GetOrderByIdAsync(request.OrderId, cancellationToken) ??
-                throw new DomainNotFoundException("Order not found.");
+            var order = await _orderWriteRepository.GetOrderByIdAsync(request.OrderId, cancellationToken);
+            if (order is null)
+                return Result.Failure(OrderErrors.OrderNotFound);
 
             if (_currentUserService.UserId != order.UserId)
-                throw new DomainUnauthorizedException("You can only modify your own orders.");
+                return Result.Failure(OrderErrors.ModifyOwnOrder);
 
             order.EnsureIsPending("Only pending orders can be modify.");
 
@@ -41,16 +45,19 @@ namespace Application.Features.Orders.Commands
                 // first use case add a new item and reserve stock.
                 if (existingItem is null)
                 {
-                    var newProduct = await _productWriteRepository.GetProductByIdAsync(requestedItem.ProductId, cancellationToken) ??
-                        throw new DomainNotFoundException("Product not found.");
+                    var newProduct = await _productWriteRepository.GetProductByIdAsync(requestedItem.ProductId, cancellationToken);
+                    if (newProduct is null)
+                        return Result.Failure(ProductErrors.ProductNotFound);
+
                     newProduct.DecreaseStock(requestedItem.Quantity);
                     order.AddItem(requestedItem.ProductId, requestedItem.Quantity, newProduct.Price);
                     continue;
                 }
 
                 // second use case adjust the quantity of an existing item.
-                var product = await _productWriteRepository.GetProductByIdAsync(requestedItem.ProductId, cancellationToken) ??
-                        throw new DomainNotFoundException("Product not found.");
+                var product = await _productWriteRepository.GetProductByIdAsync(requestedItem.ProductId, cancellationToken);
+                if(product is null)
+                    return Result.Failure(ProductErrors.ProductNotFound);
 
                 var oldQuantity = existingItem.Quantity;
                 var newQuantity = requestedItem.Quantity;
@@ -79,8 +86,10 @@ namespace Application.Features.Orders.Commands
 
                 if (productItemInRequest) continue;
 
-                var product = await _productWriteRepository.GetProductByIdAsync(productItem.ProductId, cancellationToken) ??
-                                throw new DomainNotFoundException("Product not found");
+                var product = await _productWriteRepository.GetProductByIdAsync(productItem.ProductId, cancellationToken);
+                if (product is null)
+                    return Result.Failure(ProductErrors.ProductNotFound);
+
                 product.IncreaseStock(productItem.Quantity);
                 // safe to remove from the original collection because the foreach
                 // is iterating over the snapshot or copy, not the original collection.
@@ -88,6 +97,7 @@ namespace Application.Features.Orders.Commands
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return Result.Success();
         }
     }
 }

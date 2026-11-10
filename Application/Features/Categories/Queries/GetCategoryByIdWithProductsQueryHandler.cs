@@ -1,11 +1,13 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Dtos;
 using Application.Interfaces;
 using Domain.Exceptions;
 using MediatR;
 
 namespace Application.Features.Categories.Queries
 {
-    public sealed class GetCategoryByIdWithProductsQueryHandler : IRequestHandler<GetCategoryByIdWithProductsQuery, CategoryWithProductsResponseDto>
+    public sealed class GetCategoryByIdWithProductsQueryHandler : IRequestHandler<GetCategoryByIdWithProductsQuery, ResultWithValue<CategoryWithProductsResponseDto>>
     {
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly ICacheService _cacheService;
@@ -17,16 +19,24 @@ namespace Application.Features.Categories.Queries
             _cacheService = cacheService;
         }
 
-        public async Task<CategoryWithProductsResponseDto> Handle(GetCategoryByIdWithProductsQuery request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<CategoryWithProductsResponseDto>> Handle(GetCategoryByIdWithProductsQuery request, CancellationToken cancellationToken)
         {
             var cacheKey = $"category:{request.CategoryId}";
 
-            return await _cacheService.GetOrCreateAsync(
-                cacheKey,
-                () => _categoryReadRepository.GetCategoryByIdWithProductsAsync(request.CategoryId, cancellationToken),
-                TimeSpan.FromMinutes(5)
-                ) ??
-                throw new DomainNotFoundException("Category not found.");
+            var cachedCategory = _cacheService.GetCachedResource<CategoryWithProductsResponseDto>(cacheKey);
+
+            if (cachedCategory is not null)
+                return ResultWithValue<CategoryWithProductsResponseDto>.Success(cachedCategory);
+
+            var category = await _categoryReadRepository.GetCategoryByIdWithProductsAsync(request.CategoryId, cancellationToken);
+
+            if (category is null)
+                return ResultWithValue<CategoryWithProductsResponseDto>.Failure(CategoryErrors.CategoryNotFound);
+
+            _cacheService.Set(cacheKey, category, TimeSpan.FromMinutes(5));
+
+            return ResultWithValue<CategoryWithProductsResponseDto>.Success(category);
+
         }
     }
 }

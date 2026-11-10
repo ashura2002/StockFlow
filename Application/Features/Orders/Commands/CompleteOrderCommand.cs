@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Orders.Commands
 {
-    public sealed record CompleteOrderCommand(Guid OrderId) : IRequest;
+    public sealed record CompleteOrderCommand(Guid OrderId) : IRequest<Result>;
 }

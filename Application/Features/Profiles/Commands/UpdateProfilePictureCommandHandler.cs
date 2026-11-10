@@ -1,4 +1,6 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Errors;
+using Application.Common.Results;
+using Application.Dtos;
 using Application.Interfaces;
 using Domain.Exceptions;
 using MediatR;
@@ -6,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Profiles.Commands
 {
-    public sealed class UpdateProfilePictureCommandHandler : IRequestHandler<UpdateProfilePictureCommand, UploadedImage>
+    public sealed class UpdateProfilePictureCommandHandler : IRequestHandler<UpdateProfilePictureCommand, ResultWithValue<UploadedImage>>
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserWriteRepository _userWriteRepository;
@@ -28,13 +30,14 @@ namespace Application.Features.Profiles.Commands
             _imageStorage = imageStorage;
         }
 
-        public async Task<UploadedImage> Handle(UpdateProfilePictureCommand request, CancellationToken cancellationToken)
+        public async Task<ResultWithValue<UploadedImage>> Handle(UpdateProfilePictureCommand request, CancellationToken cancellationToken)
         {
             ValidateFile(request);
 
             var currentUserId = _currentUserService.UserId;
-            var user = await _userWriteRepository.GetUserByIdWithProfileAsync(currentUserId, cancellationToken) ??
-                throw new DomainNotFoundException("User not found");
+            var user = await _userWriteRepository.GetUserByIdWithProfileAsync(currentUserId, cancellationToken);
+            if (user is null)
+                return ResultWithValue<UploadedImage>.Failure(UserErrors.UserNotFound);
 
             // for existed profile picture public id
             string? oldProfilePicturePublicId = user.Profile?.ProfilePicturePublicId;
@@ -58,7 +61,7 @@ namespace Application.Features.Profiles.Commands
 
             await DeleteOldProfilePictureAsync(oldProfilePicturePublicId, cancellationToken);
 
-            return newProfilePicture;
+            return ResultWithValue<UploadedImage>.Success(newProfilePicture);
         }
 
         // helpers

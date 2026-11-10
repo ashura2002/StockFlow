@@ -1,7 +1,8 @@
-﻿using Application.Dtos;
+﻿using Application.Common.Results;
+using Application.Dtos;
 using MediatR;
 
 namespace Application.Features.Orders.Queries
 {
-    public sealed record GetMyOrderByIdQuery(Guid OrderId) : IRequest<CustomerOrderResponseDto>;
+    public sealed record GetMyOrderByIdQuery(Guid OrderId) : IRequest<ResultWithValue<CustomerOrderResponseDto>>;
 }

@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿
+using Application.Dtos;
 using Application.Features.Orders.Commands;
 using Application.Features.Orders.Queries;
 using MediatR;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
+using WebAPI.Extensions;
 using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
@@ -30,7 +32,7 @@ namespace WebAPI.Controllers
         {
             var command = new CreateOrderCommand(request.OrderItems);
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [HttpGet("{orderId:guid}")]
@@ -42,7 +44,7 @@ namespace WebAPI.Controllers
         {
             var query = new GetOrderByIdByAdminQuery(orderId);
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [HttpGet("pending-orders")]
@@ -99,8 +101,8 @@ namespace WebAPI.Controllers
         public async Task<ActionResult> ConfirmOrder(Guid orderId, CancellationToken cancellationToken)
         {
             var command = new ConfirmOrderCommand(orderId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+           var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpPatch("my-orders/{orderId:guid}/cancel")]
@@ -108,8 +110,8 @@ namespace WebAPI.Controllers
         public async Task<ActionResult> CancelMyOrder(Guid orderId, CancellationToken cancellationToken)
         {
             var command = new CancelMyOrderCommand(orderId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+          var result =  await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpPatch("{orderId:guid}/cancel")]
@@ -117,8 +119,8 @@ namespace WebAPI.Controllers
         public async Task<ActionResult> CancelOrderByAdmin(Guid orderId, CancellationToken cancellationToken)
         {
             var command = new CancelOrderByAdminCommand(orderId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+           var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpGet("my-orders")]
@@ -141,7 +143,7 @@ namespace WebAPI.Controllers
         {
             var query = new GetMyOrderByIdQuery(orderId);
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
 
@@ -153,8 +155,8 @@ namespace WebAPI.Controllers
             CancellationToken cancellationToken)
         {
             var command = new UpdateMyOrderCommand(orderId, request.OrderItems);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpPatch("{orderId:guid}/complete")]

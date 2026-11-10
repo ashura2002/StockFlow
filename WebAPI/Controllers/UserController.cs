@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebAPI.Constants;
+using WebAPI.Extensions;
 using WebAPI.RequestDtos;
 
 namespace WebAPI.Controllers
@@ -31,11 +32,7 @@ namespace WebAPI.Controllers
                 request.ConfirmPassword);
 
             var result = await _mediatR.Send(command, cancellationToken);
-
-            return CreatedAtAction(
-                nameof(GetUserById),
-                new { userId = result },
-                result);
+            return this.ToActionResult(result);
         }
 
         [Authorize]
@@ -49,8 +46,8 @@ namespace WebAPI.Controllers
                 request.NewPassword,
                 request.ConfirmNewPassword);
 
-            await _mediatR.Send(command, cancellationToken);
-            return NoContent();
+           var result = await _mediatR.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
 
@@ -65,11 +62,7 @@ namespace WebAPI.Controllers
 
             var result = await _mediatR.Send(query, cancellationToken);
 
-            return new UserResponseDto(
-                result.UserId,
-                result.Email,
-                result.Role,
-                result.CreatedAt);
+            return this.ToActionResult(result);
         }
 
         [Authorize(Roles = RolesConstant.Admin)]
@@ -82,16 +75,16 @@ namespace WebAPI.Controllers
             var queries = new GetAllUsersQuery(request.Page, request.PageSize);
             var result = await _mediatR.Send(queries, cancellationToken);
 
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [Authorize(Roles = RolesConstant.Admin)]
         [HttpGet("deleted")]
-        public async Task<ActionResult<IReadOnlyCollection<UserResponseDto>>> GetAllInActiveUsers(CancellationToken cancellationToken)
+        public async Task<ActionResult<IReadOnlyCollection<DeletedUserResponseDto>>> GetAllDeletedUsers(CancellationToken cancellationToken)
         {
             var queries = new GetAllDeletedUsersQuery();
             var result = await _mediatR.Send(queries, cancellationToken);
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
         [Authorize]
@@ -101,14 +94,14 @@ namespace WebAPI.Controllers
             CancellationToken cancellationToken)
         {
             var command = new DeleteOwnAccountCommand(request.Email);
-            await _mediatR.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediatR.Send(command, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [HttpGet("search")]
         [Authorize(Roles = RolesConstant.Admin)]
         [EnableRateLimiting("GetResourcesPolicy")]
-        public async Task<ActionResult<UserResponseDto>> SearchUserByEmail(
+        public async Task<ActionResult<IReadOnlyCollection<UserResponseDto>>> SearchUserByEmail(
             [FromQuery] SearchUserByEmailRequest request,
             CancellationToken cancellationToken)
         {
@@ -117,7 +110,8 @@ namespace WebAPI.Controllers
                 request.Page,
                 request.PageSize);
             var result = await _mediatR.Send(query, cancellationToken);
-            return Ok(result);
+
+            return this.ToActionResult(result);
         }
 
     }

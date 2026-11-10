@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.Common.Results;
+using MediatR;
 
 namespace Application.Features.Suppliers.Commands
 {
@@ -7,5 +8,5 @@ namespace Application.Features.Suppliers.Commands
         string SupplierName,
         string Email,
         string PhoneNumber,
-        string Address) : IRequest;
+        string Address) : IRequest<Result>;
 }

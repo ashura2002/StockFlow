@@ -3,6 +3,7 @@ using Domain.Exceptions;
 using FluentValidation;
 using Infrastructure;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using WebAPI;
 using WebAPI.Middlewares;
@@ -73,10 +74,17 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
-// seeded data
-using (var scope = app.Services.CreateScope())
+// Apply database migrations and seed initial data.
+await using (var scope = app.Services.CreateAsyncScope())
 {
-    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<InventoryDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+
+    var seeder = scope.ServiceProvider
+        .GetRequiredService<DatabaseSeeder>();
+
     await seeder.SeedAdminUser();
 }
 
