@@ -9,16 +9,13 @@ namespace Application.Events
     {
         private readonly INotificationWriteRepository _notificationWriteRepository;
         private readonly IUserReadRepository _userReadRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
         public OrderCreateDomainEventHandler(
             INotificationWriteRepository notificationWriteRepository,
-            IUserReadRepository userReadRepository,
-            IUnitOfWork unitOfWork)
+            IUserReadRepository userReadRepository)
         {
             _notificationWriteRepository = notificationWriteRepository;
             _userReadRepository = userReadRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task Handle(OrderCreatedDomainEvent domainEvent, CancellationToken ct)
@@ -29,7 +26,6 @@ namespace Application.Events
             var notification = Notification.Create(user.UserId,
                 $"A new customer order has been created and is awaiting confirmation.");
             _notificationWriteRepository.Add(notification);
-            await _unitOfWork.SaveChangesAsync(ct);
         }
     }
 }

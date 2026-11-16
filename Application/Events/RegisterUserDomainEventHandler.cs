@@ -2,6 +2,8 @@
 using Domain.Entities;
 using Domain.Events;
 using Domain.Exceptions;
+using Microsoft.Extensions.Logging;
+using System.Numerics;
 
 namespace Application.Events
 {
@@ -9,16 +11,16 @@ namespace Application.Events
     {
         private readonly INotificationWriteRepository _notificationWriteRepository;
         private readonly IUserReadRepository _userReadRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<RegisteredUserDomainEvent> _logger;
 
         public RegisterUserDomainEventHandler(
             INotificationWriteRepository notificationWriteRepository,
             IUserReadRepository userReadRepository,
-            IUnitOfWork unitOfWork)
+            ILogger<RegisteredUserDomainEvent> logger)
         {
             _notificationWriteRepository = notificationWriteRepository;
             _userReadRepository = userReadRepository;
-            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
 
@@ -28,9 +30,8 @@ namespace Application.Events
                 throw new DomainNotFoundException("System admin is missing. Please verify database seeding.");
 
             var notification = Notification.Create(admin.UserId, $"{domainEvent.Email} just registered a new account.");
+            _logger.LogInformation("New user created {UserId}", domainEvent.UserId);
             _notificationWriteRepository.Add(notification);
-
-            await _unitOfWork.SaveChangesAsync(ct);
         }
     }
 }

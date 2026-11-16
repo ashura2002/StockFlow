@@ -2,6 +2,7 @@
 using Application.Common.Results;
 using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Common;
 
 namespace WebAPI.Extensions
 {
@@ -28,13 +29,24 @@ namespace WebAPI.Extensions
 
         public static ActionResult ToErrorActionResult(this ControllerBase controller, Error error)
         {
-            return error.ErrorStatus switch
+
+            var (statusCode, title) = ErrorResponseMapper.Map(error);
+
+            var problemDetails = ProblemDetailsFactory.Create(
+                controller.HttpContext,
+                title,
+                statusCode,
+                statusCode >= 500
+                ? "An unexpected error occured."
+                : error.Message,
+                statusCode >= 500
+                ? ApiErrorCodes.InternalServerError
+                : error.ErrorCode);
+
+            return new ObjectResult(problemDetails)
             {
-                ErrorStatus.BadRequest => controller.BadRequest(error),
-                ErrorStatus.Conflict => controller.Conflict(error),
-                ErrorStatus.NotFound => controller.NotFound(error),
-                ErrorStatus.Unauthorized => controller.Unauthorized(error),
-                _ => controller.StatusCode(500)
+                StatusCode = statusCode,
+                ContentTypes = {"application/problem+json"}
             };
         }
     }
