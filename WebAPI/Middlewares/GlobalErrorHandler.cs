@@ -3,6 +3,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog.Core;
+using System.Data;
+using WebAPI.Common;
 
 namespace WebAPI.Middlewares
 {
@@ -18,62 +21,86 @@ namespace WebAPI.Middlewares
 
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Exception {Exception}", exception.Message);
 
-            if (exception is DomainNotFoundException
-                or DomainRuleViolationException
-                or DomainUnauthorizedException
-                or DomainConflictException
-                or ValidationException
-                or DbUpdateConcurrencyException)
+            var (statusCode, title, details, errorCode) = exception switch
             {
+                ValidationException => (
+                StatusCodes.Status400BadRequest,
+                "Validation Failed",
+                "One or more validation error occurred.",
+                ApiErrorCodes.ValidationError),
+
+                DomainRuleViolationException => (
+                StatusCodes.Status400BadRequest,
+                "Bad Request",
+                exception.Message,
+                ApiErrorCodes.DomainRuleValidation),
+
+                DBConcurrencyException => (
+                StatusCodes.Status409Conflict,
+                "Conflict",
+                "The resources was modified by another request. Please try again.",
+                ApiErrorCodes.ConcurrencyException),
+
+                _ => (
+                StatusCodes.Status500InternalServerError,
+                "Internal Server Error",
+                "An unexpected error occurred.",
+                ApiErrorCodes.InternalServerError)
+
+            };
+
+
+
+            if (statusCode >= 500)
+                _logger.LogError(exception, "Unhandled exception occurred.");
+            else
                 _logger.LogWarning(exception, "Request failed.");
+
+
+
+            ProblemDetails problemDetails;
+
+            if(exception is ValidationException validationException)
+            {
+                var errors = validationException.Errors
+                    .GroupBy(error => error.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(error => error.ErrorMessage)
+                        .ToArray());
+
+                problemDetails = new ValidationProblemDetails(errors)
+                {
+                    Status = statusCode,
+                    Title = title,
+                    Detail = details,
+                    Instance = httpContext.Request.Path
+                };
+
+                problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
+
+                problemDetails.Extensions["errorCode"] = errorCode;
             }
             else
             {
-                // log unexpected exceptions as errors for investigation
-                _logger.LogError(exception, "Unhandled exception occurred");
-            }
-
-
-            var statusCode = exception switch
-            {
-                DomainNotFoundException => StatusCodes.Status404NotFound,
-                DomainRuleViolationException => StatusCodes.Status400BadRequest,
-                DomainUnauthorizedException => StatusCodes.Status401Unauthorized,
-                DomainConflictException => StatusCodes.Status409Conflict,
-                ValidationException => StatusCodes.Status400BadRequest, // para sa fluent validationnnnnnnn
-                DbUpdateConcurrencyException => StatusCodes.Status409Conflict,
-                _ => StatusCodes.Status500InternalServerError
-            };
-
-            var fluentValidationErrors = exception is ValidationException errors
-                ? errors.Errors
-                .GroupBy(error => error.PropertyName)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(err =>
-                    err.ErrorMessage).ToList()) : null;
-
-            // for concurrency exception message
-            var message = exception is DbUpdateConcurrencyException ?
-                "The resource was modified by another request. Please try again." : exception.Message;
-
-            var problemDetails = new ProblemDetails
-            {
-                Status = statusCode,
-                Detail = statusCode == StatusCodes.Status500InternalServerError ?
-                "An unexpected error occurred."
-                : message
-            };
-
-            // only add errors extension when exception came from fluent validation
-            if (fluentValidationErrors is not null)
-            {
-                problemDetails.Extensions["errors"] = fluentValidationErrors;
+                problemDetails = ProblemDetailsFactory.Create(
+                httpContext,
+                title,
+                statusCode,
+                details,
+                errorCode);
             }
 
             httpContext.Response.StatusCode = statusCode;
-            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            httpContext.Response.ContentType = "application/problem+json";
+
+
+            await httpContext.Response.WriteAsJsonAsync(
+                problemDetails,
+                cancellationToken);
+
             return true;
         }
     }

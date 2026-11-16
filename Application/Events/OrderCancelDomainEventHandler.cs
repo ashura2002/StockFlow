@@ -10,16 +10,13 @@ namespace Application.Events
     {
         private readonly INotificationWriteRepository _notificationWriteRepository;
         private readonly IUserReadRepository _userReadRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
         public OrderCancelDomainEventHandler(
             INotificationWriteRepository notificationWriteRepository,
-            IUserReadRepository userReadRepository,
-            IUnitOfWork unitOfWork)
+            IUserReadRepository userReadRepository)
         {
             _notificationWriteRepository = notificationWriteRepository;
             _userReadRepository = userReadRepository;
-            _unitOfWork = unitOfWork;
         }
 
         public async Task Handle(OrderCancelledDomainEvent domainEvent, CancellationToken ct)
@@ -46,8 +43,6 @@ namespace Application.Events
 
             var notification = Notification.Create(recipientId, message);
             _notificationWriteRepository.Add(notification);
-
-            await _unitOfWork.SaveChangesAsync(ct);
         }
     }
 }

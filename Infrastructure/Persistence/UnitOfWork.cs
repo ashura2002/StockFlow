@@ -1,5 +1,7 @@
 ﻿using Application.Interfaces;
+using CloudinaryDotNet.Core;
 using Domain.Entities;
+using Domain.Events;
 using Infrastructure.Data;
 
 
@@ -19,29 +21,43 @@ namespace Infrastructure.Persistence
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)
         {
-            await _context.SaveChangesAsync(cancellationToken);
-
-            // Get all tracked aggregate roots.
-            var aggregateEntries = _context.ChangeTracker
-                .Entries<AggregateRoot>();
-
-            // Copy all domain events from the aggregates into a separate list.
-            // This allows us to safely clear the events before dispatching them.
-            var domainEvents = aggregateEntries
-                .SelectMany(entry => entry.Entity.DomainEvents)
-                .ToList();
-
-            // Clear dispatched events to prevent duplicate dispatching.
-            foreach (var entry in aggregateEntries)
+            // every SaveChanges enters the loop and stops when there are no domain events
+            while (true)
             {
-                entry.Entity.ClearEvents();
-            }
+                var domainEvents = CollectAndClearEvents();
 
-            if (domainEvents.Count > 0)
-            {
-                // Dispatch all collected domain events.
+                // stop processing when there are no domain events left
+                if (domainEvents.Count == 0)
+                    break;
+
                 await _domainEventDispatcher.DispatchAsync(domainEvents, cancellationToken);
             }
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+
+
+        private List<IDomainEventMarker> CollectAndClearEvents()
+        {
+            // get the domainevents in the original entity 
+            var aggregates = _context.ChangeTracker.Entries<AggregateRoot>()
+                .Select(entry => entry.Entity)
+                .Where(entry => entry.DomainEvents.Count > 0)
+                .ToList();
+
+            // copy and stored the events to the new variable
+            var domainEvents = aggregates
+                .SelectMany(a => a.DomainEvents)
+                .ToList();
+
+            // clear all events in the original entity
+            foreach (var item in aggregates)
+            {
+                item.ClearEvents();
+            }
+
+            return domainEvents;
         }
     }
 }
